@@ -187,7 +187,15 @@ namespace Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Brand")
+                    b.Property<string>("BrandId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BrandName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Imgage")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -202,15 +210,10 @@ namespace Data.Migrations
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductsId")
-                        .HasColumnType("int");
-
                     b.Property<float>("Weight")
                         .HasColumnType("real");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductsId");
 
                     b.ToTable("Product_Details");
                 });
@@ -222,6 +225,9 @@ namespace Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("BrandId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("Create")
                         .HasColumnType("datetime2");
@@ -254,11 +260,9 @@ namespace Data.Migrations
                     b.Property<int>("TypeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("TypeName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("BrandId");
 
                     b.HasIndex("TypeId");
 
@@ -369,24 +373,21 @@ namespace Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Data.Models.Product_Details", b =>
+            modelBuilder.Entity("Data.Models.Products", b =>
                 {
-                    b.HasOne("Data.Models.Products", "Products")
+                    b.HasOne("Data.Models.Brand", "Brand")
                         .WithMany()
-                        .HasForeignKey("ProductsId")
+                        .HasForeignKey("BrandId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("Data.Models.Products", b =>
-                {
                     b.HasOne("Data.Models.Type", "Type")
                         .WithMany()
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Brand");
 
                     b.Navigation("Type");
                 });

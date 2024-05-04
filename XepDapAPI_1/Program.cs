@@ -10,6 +10,8 @@ using XeDapAPI.Repository.Interface;
 using XeDapAPI.Repository.Repositorys;
 using XeDapAPI.Service.Interfaces;
 using XeDapAPI.Service.Services;
+using XepDapAPI_1.Service.Interfaces;
+using XepDapAPI_1.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,8 @@ builder.Services.AddScoped<Token>();
 builder.Services.AddScoped<ISlideIService, SlideService>();
 builder.Services.AddScoped<ISlideInterface, SlideRepository>();
 builder.Services.AddScoped<ITypeIService, TypeService>();
+builder.Services.AddScoped<IBrandIService, BrandService>();
+builder.Services.AddScoped<IProductsIService ,ProductsService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

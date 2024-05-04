@@ -95,7 +95,7 @@ namespace XeDapAPI.Service.Services
             }
             catch(Exception ex)
             {
-                throw new Exception("An error occurred while updating Slides");
+                throw new Exception("An error occurred while updating Slides",ex);
             }
         }
         private string SaveProductImage(IFormFile image)
@@ -103,7 +103,7 @@ namespace XeDapAPI.Service.Services
             try
             {
                 string currentDateFolder = DateTime.Now.ToString("dd-MM-yyyy");
-                string imagesFolder = Path.Combine(@"C:\Users\Xuanthai98\OneDrive\Máy tính", "Slide_images", currentDateFolder);
+                string imagesFolder = Path.Combine(@"C:\Users\XuanThai\Desktop\ImageXedap", "Slide_images", currentDateFolder);
                 if (!Directory.Exists(imagesFolder))
                 {
                     Directory.CreateDirectory(imagesFolder);

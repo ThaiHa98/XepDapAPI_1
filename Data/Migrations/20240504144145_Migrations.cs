@@ -97,6 +97,25 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Product_Details",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductID = table.Column<int>(type: "int", nullable: false),
+                    BrandId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BrandName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Imgage = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Origin = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Weight = table.Column<float>(type: "real", nullable: false),
+                    Other_Details = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Product_Details", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Slides",
                 columns: table => new
                 {
@@ -162,13 +181,19 @@ namespace Data.Migrations
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Create = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BrandId = table.Column<int>(type: "int", nullable: false),
                     TypeId = table.Column<int>(type: "int", nullable: false),
-                    TypeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Products_Brands_BrandId",
+                        column: x => x.BrandId,
+                        principalTable: "Brands",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Products_Types_TypeId",
                         column: x => x.TypeId,
@@ -177,34 +202,10 @@ namespace Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "Product_Details",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductID = table.Column<int>(type: "int", nullable: false),
-                    Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Origin = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Weight = table.Column<float>(type: "real", nullable: false),
-                    Other_Details = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProductsId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Product_Details", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Product_Details_Products_ProductsId",
-                        column: x => x.ProductsId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
-                name: "IX_Product_Details_ProductsId",
-                table: "Product_Details",
-                column: "ProductsId");
+                name: "IX_Products_BrandId",
+                table: "Products",
+                column: "BrandId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_TypeId",
@@ -216,9 +217,6 @@ namespace Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "AccessTokens");
-
-            migrationBuilder.DropTable(
-                name: "Brands");
 
             migrationBuilder.DropTable(
                 name: "Carts");
@@ -233,13 +231,16 @@ namespace Data.Migrations
                 name: "Product_Details");
 
             migrationBuilder.DropTable(
+                name: "Products");
+
+            migrationBuilder.DropTable(
                 name: "Slides");
 
             migrationBuilder.DropTable(
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "Brands");
 
             migrationBuilder.DropTable(
                 name: "Types");

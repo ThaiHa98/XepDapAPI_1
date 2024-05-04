@@ -31,15 +31,6 @@ namespace XeDapAPI.Controllers
         {
             try
             {
-                var userClaims = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userClaims != null && int.TryParse(userClaims.Value, out int userID))
-                {
-                    var tokenStatus = _token.CheckTokenStatus(userID);
-                    if(tokenStatus == StatusToken.Expired)
-                    {
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-                }
                 if (slideDto == null)
                 {
                     return BadRequest("Invalid slide data");
@@ -76,15 +67,6 @@ namespace XeDapAPI.Controllers
         {
             try
             {
-                var userClaims = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userClaims != null && int.TryParse(userClaims.Value, out int userID))
-                {
-                    var tokenStatus = _token.CheckTokenStatus(userID);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-                }
                 if (updateSlideDto == null)
                 {
                     return BadRequest("Invalid slide data");
@@ -128,15 +110,15 @@ namespace XeDapAPI.Controllers
         {
             try
             {
-                var userClaims = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userClaims != null && int.TryParse(userClaims.Value, out int userID))
-                {
-                    var tokenStatus = _token.CheckTokenStatus(userID);
-                    if (tokenStatus == StatusToken.Expired)
-                    {
-                        return Unauthorized("The token is no longer valid. Please log in again.");
-                    }
-                }
+                //var userClaims = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                //if (userClaims != null && int.TryParse(userClaims.Value, out int userID))
+                //{
+                //    var tokenStatus = _token.CheckTokenStatus(userID);
+                //    if (tokenStatus == StatusToken.Expired)
+                //    {
+                //        return Unauthorized("The token is no longer valid. Please log in again.");
+                //    }
+                //}
                 var getlist = _slideInterface.GetSlides();
                 return Ok(getlist);
             }
