@@ -11,5 +11,7 @@ namespace Data.Models
         public string Origin { get; set; } //Xuất xứ
         public float Weight { get; set; } //Trọng lượng
         public string Other_Details { get; set; } //thông tin chi tiết
+
+        public Products Products { get; set; }
     }
 }

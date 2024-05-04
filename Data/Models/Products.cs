@@ -14,6 +14,11 @@ namespace Data.Models
         public int Quantity { get; set; }
         public string Image { get; set; }
         public DateTime Create { get; set; }
+
+        public int TypeId { get; set; }
+        public string TypeName { get; set; }
         public StatusProduct Status { get; set; }
+
+        public Type Type { get; set; }
     }
 }
