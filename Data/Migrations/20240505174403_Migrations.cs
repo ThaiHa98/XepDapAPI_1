@@ -47,9 +47,10 @@ namespace Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     ProducID = table.Column<int>(type: "int", nullable: false),
                     ProducName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PriceQuantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Create = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -103,10 +104,8 @@ namespace Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProductID = table.Column<int>(type: "int", nullable: false),
-                    BrandId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BrandName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BrandId = table.Column<int>(type: "int", nullable: false),
                     Imgage = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Origin = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Weight = table.Column<float>(type: "real", nullable: false),
                     Other_Details = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -182,7 +181,9 @@ namespace Data.Migrations
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Create = table.Column<DateTime>(type: "datetime2", nullable: false),
                     BrandId = table.Column<int>(type: "int", nullable: false),
+                    brandName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TypeId = table.Column<int>(type: "int", nullable: false),
+                    TypeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>

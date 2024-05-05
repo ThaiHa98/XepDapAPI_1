@@ -15,7 +15,9 @@ namespace Data.Models
         public string Image { get; set; }
         public DateTime Create { get; set; }
         public int BrandId { get; set; }
+        public string brandName { get; set; }
         public int TypeId { get; set; }
+        public string TypeName { get; set; }
         public StatusProduct Status { get; set; }
 
         public Type Type { get; set; }

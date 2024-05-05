@@ -24,7 +24,6 @@ namespace XepDapAPI_1.Controllers
             _brandIService = brandService;
         }
         [HttpPost("Create")]
-        [Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult CreteBrand(Brand brand)

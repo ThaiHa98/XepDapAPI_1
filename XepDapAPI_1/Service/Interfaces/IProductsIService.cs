@@ -6,7 +6,10 @@ namespace XepDapAPI_1.Service.Interfaces
     public interface IProductsIService
     {
         public Products Create (ProductDto productsDto, IFormFile image);
-        string Update (Products products);
-        bool Delete (Products products);
+        string Update (UpdateProductDto updateProductDto, IFormFile image);
+        bool Delete(int Id);
+        List<Object> GetBrandName(string keyword);
+        List<Object> GetTypeName(string keyword);
+        List<Object> GetPriceHasDecreased();
     }
 }

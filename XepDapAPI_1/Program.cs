@@ -10,6 +10,8 @@ using XeDapAPI.Repository.Interface;
 using XeDapAPI.Repository.Repositorys;
 using XeDapAPI.Service.Interfaces;
 using XeDapAPI.Service.Services;
+using XepDapAPI_1.Repository.Interface;
+using XepDapAPI_1.Repository.Repositorys;
 using XepDapAPI_1.Service.Interfaces;
 using XepDapAPI_1.Service.Services;
 
@@ -29,6 +31,10 @@ builder.Services.AddScoped<ISlideInterface, SlideRepository>();
 builder.Services.AddScoped<ITypeIService, TypeService>();
 builder.Services.AddScoped<IBrandIService, BrandService>();
 builder.Services.AddScoped<IProductsIService ,ProductsService>();
+builder.Services.AddScoped<IProduct_DetailIService, Product_DetailService>();
+builder.Services.AddScoped<IProductsInterface, ProductsRepository>();
+builder.Services.AddScoped<IProducts_DrtailInterface, Products_DetailRepository>();
+builder.Services.AddScoped<ICartIService, CartService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -95,7 +101,7 @@ builder.Services.AddCors(options =>
     {
         builder.WithOrigins("http://localhost:3000")
             .AllowAnyHeader()
-            .WithMethods("POST", "GET", "OPTIONS")
+            .WithMethods("POST","PUT", "GET", "OPTIONS")
             .AllowCredentials();
     });
 });

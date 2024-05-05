@@ -54,7 +54,7 @@ namespace Data.DBContext
                 .HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<Cart>()
-                .Property(x => x.PriceQuantity)
+                .Property(x => x.Price)
                 .HasColumnType("decimal(18,2)");
         }
     }
