@@ -5,6 +5,6 @@ namespace XepDapAPI_1.Service.Interfaces
 {
     public interface IOrderIService
     {
-        List<Order> Create(OrderDto orderDto);
+        public (Order, List<Order_Details>) Create(OrderDto orderDto);
     }
 }

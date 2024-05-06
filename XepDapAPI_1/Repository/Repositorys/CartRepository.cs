@@ -1,14 +1,38 @@
-﻿using Data.Models;
+﻿using Data.DBContext;
+using Data.Dto;
+using Data.Models;
 using XepDapAPI_1.Repository.Interface;
 using XepDapAPI_1.Service.Interfaces;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace XepDapAPI_1.Repository.Repositorys
 {
     public class CartRepository : ICartInterface
     {
-        public Cart GetCartItemByUser(int productId, int userId)
+        private readonly MyDB _dbContext;
+        public CartRepository(MyDB dbContext)
         {
-            throw new NotImplementedException();
+            _dbContext = dbContext;
+        }
+
+        public List<GetCartInfDto> GetCartItemByUser(int userId)
+        {
+            return _dbContext.Carts
+            .Where(x => x.UserId == userId)
+            .OrderBy(x => x.UserId)
+            .Select(x => new GetCartInfDto
+            {
+                ProducName = x.ProducName,
+                Price = x.Price,
+                Quantity = x.Quantity,
+                Image = x.Image
+             })
+             .ToList();
+        }
+
+        public Cart GetProducId(int productId)
+        {
+            return _dbContext.Carts.FirstOrDefault(x => x.ProductID == productId);
         }
     }
 }

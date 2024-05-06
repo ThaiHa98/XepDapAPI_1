@@ -1,37 +1,84 @@
 ﻿using Data.DBContext;
 using Data.Dto;
 using Data.Models;
+using Data.Models.Enum;
 using System.Net;
+using System.Net.Mime;
+using XepDapAPI_1.Repository.Interface;
 using XepDapAPI_1.Service.Interfaces;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace XepDapAPI_1.Service.Services
 {
     public class OrderService : IOrderIService
     {
         private readonly MyDB _dbContext;
-        public OrderService(MyDB dbContext)
+        private readonly ICartInterface _cartInterface;
+        public OrderService(MyDB dbContext,ICartInterface cartInterface)
         {
+            _cartInterface = cartInterface;
             _dbContext = dbContext;
         }
-        public List<Order> Create(OrderDto orderDto)
+        public (Order, List<Order_Details>) Create(OrderDto orderDto)
         {
             try
             {
-                if(orderDto == null)
+                if (orderDto == null)
                 {
                     throw new ArgumentNullException(nameof(orderDto), "OrderDto cannot be null");
                 }
                 var order = new Order
                 {
-                    OrderId = AutomaticallyGenerateOrderNumbers(),
+                    No_ = AutomaticallyGenerateOrderNumbers(),
                     UserID = orderDto.UserID,
                     ShipName = orderDto.ShipName,
                     ShipAddress = orderDto.ShipAddress,
                     ShipEmail = orderDto.ShipEmail,
                     ShipPhone = orderDto.ShipPhone,
+                    Status = StatusOrder.Pending
                 };
+                if (orderDto.Cart != null && orderDto.Cart.Any())
+                {
+                    var orderDetails = new List<Order_Details>();
+                    foreach (var productId in orderDto.Cart)
+                    {
+                        var product = _cartInterface.GetProducId(productId);
+                        if (product != null)
+                        {
+                            var orderDetail = new Order_Details
+                            {
+                                OrderID = order.No_,
+                                ProductID = product.Id,
+                                ProductName = product.ProducName,
+                                Quantity = product.Quantity,
+                                Price = product.Price,
+                                Image = product.Image,
+                                CreatedDate = DateTime.Now
+                            };
+                            orderDetails.Add(orderDetail);
+                        }
+                        else
+                        {
+                            throw new Exception($"Product with ID {productId} not found.");
+                        }
+                    }
+                    _dbContext.Orders.Add(order);
+                    _dbContext.Order_Details.AddRange(orderDetails);
+
+                    _dbContext.SaveChanges();
+                    return (order, orderDetails);
+                }
+                else
+                {
+                    throw new Exception("Cart is empty.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("There is an error when creating an Order", ex);
             }
         }
+
         private static string AutomaticallyGenerateOrderNumbers()
         {
             Random random = new Random();

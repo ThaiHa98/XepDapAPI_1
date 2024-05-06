@@ -1,9 +1,11 @@
-﻿using Data.Models;
+﻿using Data.Dto;
+using Data.Models;
 
 namespace XepDapAPI_1.Repository.Interface
 {
     public interface ICartInterface
     {
-        Cart GetCartItemByUser(int productId, int userId);
+        List<GetCartInfDto> GetCartItemByUser(int userId);
+        Cart GetProducId(int productId);
     }
 }

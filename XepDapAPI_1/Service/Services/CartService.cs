@@ -2,7 +2,10 @@
 using Data.Dto;
 using Data.Models;
 using Data.Models.Enum;
+using System.Dynamic;
+using XepDapAPI_1.Repository.Interface;
 using XepDapAPI_1.Service.Interfaces;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace XepDapAPI_1.Service.Services
@@ -10,8 +13,10 @@ namespace XepDapAPI_1.Service.Services
     public class CartService : ICartIService
     {
         private readonly MyDB _dbContext;
-        public CartService(MyDB dbContext)
+        private readonly ICartInterface _cartInterface;
+        public CartService(MyDB dbContext, ICartInterface cartInterface)
         {
+            _cartInterface = cartInterface;
             _dbContext = dbContext;
         }
         public List<Cart> CrateBicycle(CartDto cartDto)
@@ -29,7 +34,7 @@ namespace XepDapAPI_1.Service.Services
                 {
                     throw new Exception("Product ID not found");
                 }
-                var cart = _dbContext.Carts.FirstOrDefault(x => x.ProducID == productId && x.UserId == cartDto.UserId);
+                var cart = _dbContext.Carts.FirstOrDefault(x => x.ProductID == productId && x.UserId == cartDto.UserId);
                 if (cart != null)
                 {
                     cart.Quantity += 1;
@@ -40,7 +45,7 @@ namespace XepDapAPI_1.Service.Services
                     Cart newCart = new Cart
                     {
                         UserId = user.Id,
-                        ProducID = productId,
+                        ProductID = productId,
                         ProducName = product.ProductName,
                         Price = product.Price,
                         Quantity = 1,
@@ -75,12 +80,35 @@ namespace XepDapAPI_1.Service.Services
             }
         }
 
+        public List<object> GetCart(int userId)
+        {
+            List<object> result = new List<object>();
+            var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == userId);
+            if (cart == null)
+            {
+                throw new Exception("cartId not found");
+            }
+            List<GetCartInfDto> cart1 = _cartInterface.GetCartItemByUser(userId);
+            foreach (var item in cart1)
+            {
+                var caerInfo = new GetCartInfDto
+                {
+                    ProducName = item.ProducName,
+                    Price = item.Price,
+                    Quantity = item.Quantity,
+                    Image = item.Image,
+                };
+                result.Add(caerInfo);
+            }
+            return result;
+        }
+
         //Tăng số lượng trong giỏ hàng
         public string IncreaseQuantityShoppingCart(int UserId, int createProductId)
         {
             try
             {
-                var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == UserId && x.ProducID == createProductId);
+                var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == UserId && x.ProductID == createProductId);
                 if (cart == null) 
                 {
                     throw new Exception("UserId & ProducId not found");
@@ -106,7 +134,7 @@ namespace XepDapAPI_1.Service.Services
         {
             try
             {
-                var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == UserId && x.ProducID == createProductId);
+                var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == UserId && x.ProductID == createProductId);
                 if(cart == null)
                 {
                     throw new Exception("UserId & ProducId not found");

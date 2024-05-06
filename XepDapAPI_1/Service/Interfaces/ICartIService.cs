@@ -9,5 +9,6 @@ namespace XepDapAPI_1.Service.Interfaces
         string IncreaseQuantityShoppingCart(int UserId,int createProductId);
         object ReduceShoppingCart(int UserId,int createProductId);
         bool Delete(int Id);
+        List<object> GetCart(int userId);
     }
 }
