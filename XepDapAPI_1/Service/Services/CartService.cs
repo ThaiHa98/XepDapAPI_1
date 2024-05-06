@@ -56,21 +56,80 @@ namespace XepDapAPI_1.Service.Services
             return cartList;
         }
 
-
-
-        public bool Delete(int UserId)
+        public bool Delete(int Id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var query = _dbContext.Carts.FirstOrDefault(x => x.Id == Id);
+                if (query != null)
+                {
+                    throw new Exception("Id not found");
+                }
+                _dbContext.Carts.Remove(query);
+                _dbContext.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while Delete the Cart quantity :{ex.Message}");
+            }
         }
 
+        //Tăng số lượng trong giỏ hàng
         public string IncreaseQuantityShoppingCart(int UserId, int createProductId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == UserId && x.ProducID == createProductId);
+                if (cart == null) 
+                {
+                    throw new Exception("UserId & ProducId not found");
+                }
+                var product = _dbContext.Products.FirstOrDefault(x => x.Id == createProductId);
+                if(product == null)
+                {
+                    throw new Exception("ProducId not found");
+                }
+                cart.Quantity += 1;
+                cart.Price = product.Price * cart.Quantity;
+                _dbContext.SaveChanges();
+                return "Update Successfully";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while updating the Cart quantity :{ex.Message}");
+            }
         }
 
+        //giảm số lượng trong giỏ hàng
         public object ReduceShoppingCart(int UserId, int createProductId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == UserId && x.ProducID == createProductId);
+                if(cart == null)
+                {
+                    throw new Exception("UserId & ProducId not found");
+                }
+                var product = _dbContext.Products.FirstOrDefault(x => x.Id == createProductId);
+                if (product == null)
+                {
+                    throw new Exception("ProducId not found");
+                }
+                cart.Quantity -= 1;
+                cart.Price = product.Price * cart.Quantity;
+                if(cart.Quantity <= 0)
+                {
+                    _dbContext.Remove(cart);
+                    return "Shopping cart item removed successfully";
+                }
+                _dbContext.SaveChanges();
+                return "ReduceShoppingCart Successfully";
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"An error occurred while updating the Cart quantity :{ex.Message}");
+            }
         }
     }
 }

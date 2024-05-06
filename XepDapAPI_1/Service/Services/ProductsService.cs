@@ -175,7 +175,7 @@ namespace XepDapAPI_1.Service.Services
             try
             {
                 string currentDateFolder = DateTime.Now.ToString("dd-MM-yyyy");
-                string imagesFolder = Path.Combine(@"C:\Users\Xuanthai98\OneDrive\Máy tính\ImageSlide", "Prodycts_images", currentDateFolder);
+                string imagesFolder = Path.Combine(@"C:\Users\XuanThai\Desktop\ImageXedap", "Prodycts_images", currentDateFolder);
                 if (!Directory.Exists(imagesFolder))
                 {
                     Directory.CreateDirectory(imagesFolder);
