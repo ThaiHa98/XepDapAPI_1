@@ -2,6 +2,7 @@
 using Data.Dto;
 using Data.Models;
 using Data.Models.Enum;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Mime;
 using XepDapAPI_1.Repository.Interface;
@@ -19,7 +20,7 @@ namespace XepDapAPI_1.Service.Services
             _cartInterface = cartInterface;
             _dbContext = dbContext;
         }
-        public (Order, List<Order_Details>) Create(OrderDto orderDto)
+        public (Order, List<Order_Details>) Create([FromQuery]OrderDto orderDto)
         {
             try
             {
@@ -27,32 +28,41 @@ namespace XepDapAPI_1.Service.Services
                 {
                     throw new ArgumentNullException(nameof(orderDto), "OrderDto cannot be null");
                 }
+
+                var user = _dbContext.Users.FirstOrDefault(x => x.Id == orderDto.UserID);
+                if (user == null)
+                {
+                    throw new Exception("UserId not found");
+                }
+
                 var order = new Order
                 {
                     No_ = AutomaticallyGenerateOrderNumbers(),
-                    UserID = orderDto.UserID,
+                    UserID = user.Id,
                     ShipName = orderDto.ShipName,
                     ShipAddress = orderDto.ShipAddress,
                     ShipEmail = orderDto.ShipEmail,
                     ShipPhone = orderDto.ShipPhone,
                     Status = StatusOrder.Pending
                 };
-                if (orderDto.Cart != null && orderDto.Cart.Any())
+
+                if(orderDto.Cart != null && orderDto.Cart.Any())
                 {
                     var orderDetails = new List<Order_Details>();
                     foreach (var productId in orderDto.Cart)
                     {
-                        var product = _cartInterface.GetProducId(productId);
-                        if (product != null)
+                        var cart = _cartInterface.GetProducId(productId);
+                        if (cart != null)
                         {
                             var orderDetail = new Order_Details
                             {
                                 OrderID = order.No_,
-                                ProductID = product.Id,
-                                ProductName = product.ProducName,
-                                Quantity = product.Quantity,
-                                Price = product.Price,
-                                Image = product.Image,
+                                ProductID = cart.ProductID,
+                                ProductName = cart.ProducName,
+                                Quantity = cart.Quantity,
+                                PriceProduc = cart.PriceProduct,
+                                TotalPrice = cart.TotalPrice,
+                                Image = cart.Image,
                                 CreatedDate = DateTime.Now
                             };
                             orderDetails.Add(orderDetail);

@@ -10,5 +10,6 @@ namespace XepDapAPI_1.Service.Interfaces
         object ReduceShoppingCart(int UserId,int createProductId);
         bool Delete(int Id);
         List<object> GetCart(int userId);
+        bool DeleteCart(int userid, List<int> productIds);
     }
 }

@@ -5,6 +5,7 @@ namespace Data.Dto
     public class SlideDto
     {
         public int UserId {  get; set; }
+        public int ProductId { get; set; }
         public string SlideName { get; set; }
         public string Url { get; set; }
         public string Description { get; set; }

@@ -21,15 +21,16 @@ namespace XeDapAPI.Helper
         public string CreateToken(User user)
         {
             List<Claim> claims = new List<Claim> {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Name),
+                //new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim("Name", user.Name.ToString()),
+                new Claim("Id", user.Id.ToString())
 
         };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Token256").Value!)); // Sử dụng khóa 256 bit
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             DateTime now = DateTime.Now; // Lấy thời gian hiện tại
-            int expirationMinutes = 30; // Đặt thời gian hết hạn là 3 phút
+            int expirationMinutes = 60; // Đặt thời gian hết hạn là 3 phút
             DateTime expiration = now.AddMinutes(expirationMinutes); // Tính thời gian hết hạn
 
             var token = new JwtSecurityToken(claims: claims, expires: expiration,
@@ -80,6 +81,43 @@ namespace XeDapAPI.Helper
                 }
             }
             return StatusToken.Valid;
+        }
+        public int? ExtractUserIdFromToken(string token)
+        {
+            try
+            {
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Token256").Value!));
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = key,
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["Jwt:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["Jwt:Audience"],
+                    ValidateLifetime = true,
+                };
+
+                SecurityToken securityToken;
+                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+                var nameIdentifierClaim = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (nameIdentifierClaim != null)
+                {
+                    if (int.TryParse(nameIdentifierClaim, out int userId))
+                    {
+                        return userId;
+                    }
+                }
+                Console.WriteLine(principal);
+                return null;
+            }
+
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
     }
 }

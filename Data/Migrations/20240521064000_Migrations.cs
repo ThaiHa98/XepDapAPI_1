@@ -50,7 +50,8 @@ namespace Data.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false),
                     ProductID = table.Column<int>(type: "int", nullable: false),
                     ProducName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PriceProduct = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Create = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -68,7 +69,7 @@ namespace Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     No_ = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserID = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserID = table.Column<int>(type: "int", nullable: false),
                     ShipName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ShipAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ShipEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -87,6 +88,8 @@ namespace Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProductID = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PriceHasDecreased = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     BrandId = table.Column<int>(type: "int", nullable: false),
                     Imgage = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Weight = table.Column<float>(type: "real", nullable: false),
@@ -159,8 +162,9 @@ namespace Data.Migrations
                     OrderID = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProductID = table.Column<int>(type: "int", nullable: false),
                     ProductName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PriceProduc = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CartId = table.Column<int>(type: "int", nullable: true)

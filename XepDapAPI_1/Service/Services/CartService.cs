@@ -22,23 +22,25 @@ namespace XepDapAPI_1.Service.Services
         public List<Cart> CrateBicycle(CartDto cartDto)
         {
             List<Cart> cartList = new List<Cart>();
+            
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == cartDto.UserId);
             if (user == null)
             {
-                throw new Exception("UserID not found");
+                throw new Exception("UserId not found");
             }
-            foreach (var productId in cartDto.ProducIDs)
+            foreach (var productId in cartDto.ProductIDs)
             {
                 var product = _dbContext.Products.FirstOrDefault(x => x.Id == productId);
                 if (product == null)
                 {
                     throw new Exception("Product ID not found");
                 }
+                decimal priceToUse = product.PriceHasDecreased > 0 ? product.PriceHasDecreased : product.Price;
                 var cart = _dbContext.Carts.FirstOrDefault(x => x.ProductID == productId && x.UserId == cartDto.UserId);
                 if (cart != null)
                 {
                     cart.Quantity += 1;
-                    cart.Price = product.Price * cart.Quantity;
+                    cart.TotalPrice = priceToUse * cart.Quantity;
                 }
                 else
                 {
@@ -47,7 +49,8 @@ namespace XepDapAPI_1.Service.Services
                         UserId = user.Id,
                         ProductID = productId,
                         ProducName = product.ProductName,
-                        Price = product.Price,
+                        PriceProduct = priceToUse,
+                        TotalPrice = priceToUse,
                         Quantity = 1,
                         Image = product.Image,
                         Create = DateTime.Now,
@@ -66,7 +69,7 @@ namespace XepDapAPI_1.Service.Services
             try
             {
                 var query = _dbContext.Carts.FirstOrDefault(x => x.Id == Id);
-                if (query != null)
+                if (query == null)
                 {
                     throw new Exception("Id not found");
                 }
@@ -79,6 +82,28 @@ namespace XepDapAPI_1.Service.Services
                 throw new Exception($"An error occurred while Delete the Cart quantity :{ex.Message}");
             }
         }
+
+        public bool DeleteCart(int userid, List<int> productIds)
+        {
+            try
+            {
+                var cartItems = _dbContext.Carts.Where(x => x.UserId == userid && productIds.Contains(x.ProductID)).ToList();
+                if (cartItems == null || !cartItems.Any())
+                {
+                    throw new Exception("No cart items found for the specified userId and productIds.");
+                }
+
+                _dbContext.Carts.RemoveRange(cartItems);
+                _dbContext.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while deleting the cart items: {ex.Message}");
+            }
+        }
+
 
         public List<object> GetCart(int userId)
         {
@@ -93,8 +118,11 @@ namespace XepDapAPI_1.Service.Services
             {
                 var caerInfo = new GetCartInfDto
                 {
+                    CartId = item.CartId,
+                    ProductID = item.ProductID,
                     ProducName = item.ProducName,
-                    Price = item.Price,
+                    PriceProduct = item.PriceProduct,
+                    TotalPrice = item.TotalPrice,
                     Quantity = item.Quantity,
                     Image = item.Image,
                 };
@@ -119,7 +147,7 @@ namespace XepDapAPI_1.Service.Services
                     throw new Exception("ProducId not found");
                 }
                 cart.Quantity += 1;
-                cart.Price = product.Price * cart.Quantity;
+                cart.TotalPrice = product.Price * cart.Quantity;
                 _dbContext.SaveChanges();
                 return "Update Successfully";
             }
@@ -145,7 +173,7 @@ namespace XepDapAPI_1.Service.Services
                     throw new Exception("ProducId not found");
                 }
                 cart.Quantity -= 1;
-                cart.Price = product.Price * cart.Quantity;
+                cart.TotalPrice = product.Price * cart.Quantity;
                 if(cart.Quantity <= 0)
                 {
                     _dbContext.Remove(cart);

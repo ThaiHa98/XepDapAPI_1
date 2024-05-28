@@ -28,6 +28,8 @@ namespace XepDapAPI_1.Service.Services
                 {
                     ProductID = products.Id,
                     BrandId = products.BrandId,
+                    Price = products.Price,
+                    PriceHasDecreased = products.PriceHasDecreased,
                     Imgage = products.Image,
                     Weight = product_DetailDto.Weight,
                     Other_Details = product_DetailDto.Other_Details,

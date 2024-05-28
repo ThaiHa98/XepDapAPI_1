@@ -9,6 +9,9 @@ using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using Microsoft.AspNetCore.Authorization;
 using XepDapAPI_1.Repository.Interface;
 using XeDapAPI.Helper;
+using Data.Models;
+using System;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace XepDapAPI_1.Controllers
 {
@@ -139,7 +142,7 @@ namespace XepDapAPI_1.Controllers
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetListTypeName([FromQuery] string keyword)
+        public IActionResult GetListTypeName([FromQuery] string keyword,int limit = 8)
         {
             try
             {
@@ -161,7 +164,7 @@ namespace XepDapAPI_1.Controllers
                         message = "Invalid slide data"
                     });
                 }
-                var typeName = _productsInterface.GetAllTypeName(keyword);
+                var typeName = _productsInterface.GetAllTypeName(keyword,limit);
                 return Ok(new XBaseResult
                 {
                     data = typeName,
@@ -206,6 +209,86 @@ namespace XepDapAPI_1.Controllers
                     httpStatusCode = (int)HttpStatusCode.OK,
                     totalCount = PriceHasDecreased.Count,
                     message = "List"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+        [HttpGet("images/product/{productId}")]
+        public IActionResult GetProductImage(int productId)
+        {
+            try
+            {
+                var product = _productsInterface.GetProductsId(productId);
+
+                if (product == null || string.IsNullOrEmpty(product.Image))
+                {
+                    return NotFound("Image not found!");
+                }
+
+                var imageBytes = _productsService.GetProductImageBytes(product.Image);
+                return File(imageBytes, "image/jpeg"); // Điều chỉnh loại nội dung tùy thuộc
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"An error occurred: {e.Message}");
+            }
+        }
+
+        [HttpGet("GetAllProduct")]
+        //[Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetAllProduct()
+        {
+            try
+            {
+                var products = _productsInterface.GetAllProducts();
+                return Ok(new XBaseResult
+                {
+                    data = products,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = products.Count,
+                    message = "List",
+                });
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+        [HttpGet("GetListPrice")]
+        //[Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetListPrice([FromQuery]int minPrice,[FromQuery]int maxPrice)
+        {
+            try
+            {   if(minPrice == null || maxPrice == null)
+                {
+                    throw new ArgumentNullException("minPrice & maxPrice not found");
+                }
+                var getPrice = _productsService.GetProductsInPriceRange(minPrice, maxPrice);
+                return Ok(new XBaseResult
+                {
+                    data = getPrice,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = getPrice.Count(),
+                    message = "List",
                 });
             }
             catch (Exception ex)

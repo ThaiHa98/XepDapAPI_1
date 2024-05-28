@@ -50,11 +50,27 @@ namespace Data.DBContext
                 .HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<Order_Details>()
-                .Property(x => x.Price)
+                .Property(x => x.TotalPrice)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Order_Details>()
+                .Property(x => x.PriceProduc)
                 .HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<Cart>()
+                .Property(x => x.TotalPrice)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Cart>()
+                .Property(x => x.PriceProduct)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Product_Details>()
                 .Property(x => x.Price)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Product_Details>()
+                .Property(x => x.PriceHasDecreased)
                 .HasColumnType("decimal(18,2)");
         }
     }

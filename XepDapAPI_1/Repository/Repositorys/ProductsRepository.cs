@@ -28,15 +28,28 @@ namespace XepDapAPI_1.Repository.Repositorys
                 .ToList();
         }
 
-        public ICollection<Products> GetAllProducts()
-        {
-            return _dbContext.Products.ToList();
-        }
-
-        public List<ProductTypeInfDto> GetAllTypeName(string keyword)
+        public List<ProductGetAllInfDto> GetAllProducts()
         {
             return _dbContext.Products
+                 .Select(x => new ProductGetAllInfDto
+                 {
+                     Id = x.Id,
+                     ProductName = x.ProductName,
+                     Price = x.Price,
+                     PriceHasDecreased = x.PriceHasDecreased,
+                     Image = x.Image,
+                 })
+                 .ToList();
+        }
+
+        public List<ProductTypeInfDto> GetAllTypeName(string keyword, int limit = 8)
+        {
+            keyword = keyword.ToLower();
+
+            return _dbContext.Products
+                .Where(x => x.TypeName.ToLower().Contains(keyword))
                 .OrderBy(x => x.TypeName)
+                .Take(limit) // Lấy ra tối đa 'limit' sản phẩm
                 .Select(x => new ProductTypeInfDto
                 {
                     Id = x.Id,
@@ -47,6 +60,12 @@ namespace XepDapAPI_1.Repository.Repositorys
                     TypeName = x.TypeName
                 })
                 .ToList();
+        }
+
+
+        public Products GetProductsId(int Id)
+        {
+            return _dbContext.Products.FirstOrDefault(x => x.Id == Id);
         }
 
         public List<ProductPriceHasDecreasedInfDto> SearchProductsByPriceHasDecreased()

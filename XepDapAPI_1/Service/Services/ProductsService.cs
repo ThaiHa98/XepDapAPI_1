@@ -122,14 +122,16 @@ namespace XepDapAPI_1.Service.Services
             return result;
         }
 
-        public List<object> GetTypeName(string keyword)
+        public List<object> GetTypeName(string keyword, int limit = 8)
         {
-            keyword = keyword.ToLower();
-            List<object> resultType  = new List<object>();
+            List<object> resultType = new List<object>();
 
-            List<ProductTypeInfDto> products1 = _productsInterface.GetAllTypeName(keyword);
-            foreach (var item in products1)
+            List<ProductTypeInfDto> products = _productsInterface.GetAllTypeName(keyword);
+
+            // Lấy ra tối đa 'limit' sản phẩm từ danh sách
+            for (int i = 0; i < Math.Min(limit, products.Count); i++)
             {
+                var item = products[i];
                 var productTypeInfo = new ProductTypeInfDto
                 {
                     Id = item.Id,
@@ -144,6 +146,7 @@ namespace XepDapAPI_1.Service.Services
             }
             return resultType;
         }
+
 
         public string Update(UpdateProductDto updateProductDto, IFormFile image)
         {
@@ -175,7 +178,7 @@ namespace XepDapAPI_1.Service.Services
             try
             {
                 string currentDateFolder = DateTime.Now.ToString("dd-MM-yyyy");
-                string imagesFolder = Path.Combine(@"C:\Users\Xuanthai98\OneDrive\Máy tính\ImageSlide", "Prodycts_images", currentDateFolder);
+                string imagesFolder = Path.Combine(@"C:\Users\XuanThai\Desktop\ImageXedap", "Prodycts_images", currentDateFolder);
                 if (!Directory.Exists(imagesFolder))
                 {
                     Directory.CreateDirectory(imagesFolder);
@@ -193,6 +196,40 @@ namespace XepDapAPI_1.Service.Services
             {
                 throw new Exception($"An error occurred while saving the image: {e.Message}");
             }
+        }
+        public byte[] GetProductImageBytes(string image)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(image) || !File.Exists(image))
+                {
+                    throw new FileNotFoundException("Image not found!");
+                }
+
+                return File.ReadAllBytes(image);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"An error occurred: {e.Message}");
+            }
+        }
+
+        public List<ProductGetAllInfDto> GetProductsInPriceRange(int minPrice, int maxPrice)
+        {
+            List<ProductGetAllInfDto> products = _productsInterface.GetAllProducts();
+            List<ProductGetAllInfDto> result = products
+                .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
+                .Select(p => new ProductGetAllInfDto
+                {
+                    Id = p.Id,
+                    ProductName = p.ProductName,
+                    Price = p.Price,
+                    PriceHasDecreased = p.PriceHasDecreased,
+                    Image = p.Image
+                })
+                .ToList();
+
+            return result;
         }
     }
 }

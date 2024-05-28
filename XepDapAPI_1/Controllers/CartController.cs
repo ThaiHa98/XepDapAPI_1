@@ -1,9 +1,12 @@
 ﻿using APIThuVien.Common;
 using Data.Dto;
+using Data.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Security.Claims;
+using XeDapAPI.Helper;
 using XepDapAPI_1.Service.Interfaces;
 
 namespace XepDapAPI_1.Controllers
@@ -13,27 +16,29 @@ namespace XepDapAPI_1.Controllers
     public class CartController : ControllerBase
     {
         private readonly ICartIService _cartService;
-        public CartController(ICartIService cartService)
+        private readonly Token _token;
+        public CartController(ICartIService cartService,Token token)
         {
+            _token = token;
             _cartService = cartService;
         }
-        [HttpPost("CreatCart")]
-        //[Authorize]
+        [HttpPost("CreateCart")]
+        [Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult CreateCart([FromBody] List<CartDto> cartDtoList)
         {
             try
             {
-                //var userClaims = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-                //if (userClaims != null && int.TryParse(userClaims.Value, out int userID))
-                //{
-                //    var tokenStatus = _token.CheckTokenStatus(userID);
-                //    if (tokenStatus == StatusToken.Expired)
-                //    {
-                //        return Unauthorized("The token is no longer valid. Please log in again.");
-                //    }
-                //}
+                var userClaims = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                if (userClaims != null && int.TryParse(userClaims.Value, out int userID))
+                {
+                    var tokenStatus = _token.CheckTokenStatus(userID);
+                    if (tokenStatus == StatusToken.Expired)
+                    {
+                        return Unauthorized("The token is no longer valid. Please log in again.");
+                    }
+                }
                 foreach (var cartDto in cartDtoList)
                 {
                     var create = _cartService.CrateBicycle(cartDto);
@@ -61,7 +66,7 @@ namespace XepDapAPI_1.Controllers
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult IncreaseQuantityShoppingCart(int UserId,int createProductId)
+        public IActionResult IncreaseQuantityShoppingCart([FromQuery]int UserId,int createProductId)
         {
             try
             {
@@ -100,7 +105,7 @@ namespace XepDapAPI_1.Controllers
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult ReduceShoppingCart(int UserId,int createProductId)
+        public IActionResult ReduceShoppingCart([FromQuery]int UserId,int createProductId)
         {
             try
             {
@@ -140,7 +145,7 @@ namespace XepDapAPI_1.Controllers
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetCart(int userId)
+        public IActionResult GetCart([FromQuery]int userId)
         {
             try
             {
@@ -165,6 +170,68 @@ namespace XepDapAPI_1.Controllers
                     httpStatusCode = (int)HttpStatusCode.OK,
                     totalCount = cart.Count,
                     message = "List"
+                });
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+        [HttpDelete("Delete")]
+        //[Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult DeleteCart([FromQuery]int Id)
+        {
+            try
+            {
+                if (Id == null)
+                {
+                    throw new Exception("Id not found");
+                }
+                var delete = _cartService.Delete(Id);
+                return Ok(new XBaseResult
+                {
+                    data = delete,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "Delete Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+        [HttpDelete("DeleteCartId")]
+        //[Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult DeleteCartId([FromQuery]int userid, List<int> productIds)
+        {
+            try
+            {
+                if(userid == null)
+                {
+                    throw new Exception("userid not found");
+                }
+                var deleteCartId = _cartService.DeleteCart(userid,productIds);
+                return Ok(new XBaseResult
+                {
+                    data = deleteCartId,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "DeleteCart Successfully"
                 });
             }
             catch(Exception ex)

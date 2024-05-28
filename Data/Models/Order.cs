@@ -8,7 +8,7 @@ namespace Data.Models
         [Key]
         public int Id { get; set; }
         public string No_ { get; set; }
-        public string UserID { get; set; }
+        public int UserID { get; set; }
         public string ShipName { get; set; }
         public string ShipAddress { get; set; }
         public string ShipEmail { get; set; }

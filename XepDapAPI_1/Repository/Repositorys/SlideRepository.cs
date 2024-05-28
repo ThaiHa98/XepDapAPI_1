@@ -1,5 +1,6 @@
 ﻿using Data.DBContext;
 using Data.Models;
+using Data.Models.Enum;
 using XeDapAPI.Repository.Interface;
 
 namespace XeDapAPI.Repository.Repositorys
@@ -12,9 +13,25 @@ namespace XeDapAPI.Repository.Repositorys
             _dbContext = dbContext;
         }
 
+        public Slide GetSlideImage(int slideId)
+        {
+            return _dbContext.Slides.FirstOrDefault(x => x.Id == slideId);
+        }
+
+        public Slide GetSlideImageid4(int slideId = 4)
+        {
+            return _dbContext.Slides.FirstOrDefault(x => x.Id == slideId);
+        }
+
+        public Slide GetSlideImageid5(int slideId = 5)
+        {
+            return _dbContext.Slides.FirstOrDefault(x => x.Id == slideId);
+        }
+
         public ICollection<Slide> GetSlides()
         {
-            return _dbContext.Slides.OrderBy(x => x.Sort).ToList();
+            var slides = _dbContext.Slides.Where(x => x.Status == StatusSlide.Active).OrderBy(x => x.Sort).ToList();
+            return slides;
         }
     }
 }

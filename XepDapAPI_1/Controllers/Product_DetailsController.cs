@@ -54,7 +54,7 @@ namespace XepDapAPI_1.Controllers
         [HttpPut("Update")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult UpdateProduct_Details(UpdateProduct_DetailsDto updateproduct_DetailDto)
+        public IActionResult UpdateProduct_Details([FromBody]UpdateProduct_DetailsDto updateproduct_DetailDto)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace XepDapAPI_1.Controllers
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetProduct_Detail(int Id) 
+        public IActionResult GetProduct_Detail([FromQuery]int productId)
         {
             try
             {
@@ -129,11 +129,11 @@ namespace XepDapAPI_1.Controllers
                 //        return Unauthorized("The token is no longer valid. Please log in again.");
                 //    }
                 //}
-                if (Id <= 0)
+                if (productId <= 0)
                 {
                     return BadRequest("Id not found");
                 }
-                var query = _products_DrtailInterface.Getproducts_Detail(Id);
+                var query = _products_DrtailInterface.Getproducts_Detail(productId);
                 return Ok(new XBaseResult
                 {
                     data = query,

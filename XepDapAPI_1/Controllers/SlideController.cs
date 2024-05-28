@@ -8,6 +8,7 @@ using System.Security.Claims;
 using XeDapAPI.Helper;
 using XeDapAPI.Repository.Interface;
 using XeDapAPI.Service.Interfaces;
+using XepDapAPI_1.Repository.Interface;
 
 namespace XeDapAPI.Controllers
 {
@@ -120,7 +121,14 @@ namespace XeDapAPI.Controllers
                 //    }
                 //}
                 var getlist = _slideInterface.GetSlides();
-                return Ok(getlist);
+                return Ok(new XBaseResult
+                {
+                    data = getlist,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = getlist.Count(),
+                    message = "Getlist Successfully"
+                });
             }
             catch (Exception ex)
             {
@@ -130,6 +138,72 @@ namespace XeDapAPI.Controllers
                     httpStatusCode = (int)HttpStatusCode.BadRequest,
                     message = ex.Message
                 });
+            }
+        }
+        [HttpGet("images/slide/{slideId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetProductImage(int slideId)
+        {
+            try
+            {
+                var slide = _slideInterface.GetSlideImage(slideId);
+
+                if (slide == null || string.IsNullOrEmpty(slide.Image))
+                {
+                    return NotFound("Image not found!");
+                }
+
+                var imageBytes = _slideIService.GetSileBytesImage(slide.Image);
+                return File(imageBytes, "image/jpeg"); // Điều chỉnh loại nội dung tùy thuộc
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"An error occurred: {e.Message}");
+            }
+        }
+        [HttpGet("images/slide/4")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetProductImageid4(int slideId = 4)
+        {
+            try
+            {
+                var slide = _slideInterface.GetSlideImage(slideId);
+
+                if (slide == null || string.IsNullOrEmpty(slide.Image))
+                {
+                    return NotFound("Image not found!");
+                }
+
+                var imageBytes = _slideIService.GetSlideBytesImageid4(slide.Image);
+                return File(imageBytes, "image/jpeg"); // Adjust content type as needed
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"An error occurred: {e.Message}");
+            }
+        }
+        [HttpGet("images/slide/5")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetProductImageid5(int slideId = 5)
+        {
+            try
+            {
+                var slide = _slideInterface.GetSlideImage(slideId);
+
+                if (slide == null || string.IsNullOrEmpty(slide.Image))
+                {
+                    return NotFound("Image not found!");
+                }
+
+                var imageBytes = _slideIService.GetSlideBytesImageid4(slide.Image);
+                return File(imageBytes, "image/jpeg"); // Adjust content type as needed
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"An error occurred: {e.Message}");
             }
         }
     }

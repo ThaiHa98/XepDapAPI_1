@@ -22,8 +22,11 @@ namespace XepDapAPI_1.Repository.Repositorys
             .OrderBy(x => x.UserId)
             .Select(x => new GetCartInfDto
             {
+                CartId = x.Id,
+                ProductID = x.ProductID,
                 ProducName = x.ProducName,
-                Price = x.Price,
+                PriceProduct = x.PriceProduct,
+                TotalPrice = x.TotalPrice,
                 Quantity = x.Quantity,
                 Image = x.Image
              })

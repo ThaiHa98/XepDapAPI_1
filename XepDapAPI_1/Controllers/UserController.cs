@@ -52,7 +52,7 @@ namespace XeDapAPI.Controllers
                 });
             }
         }
-        [HttpPost("Loign")]
+        [HttpPost("Login")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult LoginUser([FromBody] RequestDto requestDto)

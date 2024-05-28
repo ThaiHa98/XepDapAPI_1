@@ -75,6 +75,54 @@ namespace XeDapAPI.Service.Services
             }
         }
 
+        public byte[] GetSileBytesImage(string imagePath)
+        {
+            try
+            {
+                if(string.IsNullOrEmpty(imagePath) || !File.Exists(imagePath))
+                {
+                    throw new FieldAccessException("Image not found!");
+                }
+                return File.ReadAllBytes(imagePath);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred: {ex.Message}");
+            }
+        }
+
+        public byte[] GetSlideBytesImageid4(string imagePath)
+        {
+            try
+            {
+                if(string.IsNullOrEmpty(imagePath) || !File.Exists(imagePath))
+                {
+                    throw new FieldAccessException("Image not found!");
+                }
+                return File.ReadAllBytes(imagePath);
+            }
+            catch( Exception ex)
+            {
+                throw new Exception($"An error occurred: {ex.Message}");
+            }
+        }
+
+        public byte[] GetSlideBytesImageid5(string imagePath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(imagePath) || !File.Exists(imagePath))
+                {
+                    throw new FieldAccessException("Image not found!");
+                }
+                return File.ReadAllBytes(imagePath);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred: {ex.Message}");
+            }
+        }
+
         public string Update(UpdateSlideDto updateSlideDto)
         {
             try
