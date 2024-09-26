@@ -5,6 +5,6 @@
         Available, //Có Sẵn
         OutOfStock, //Hết hàng
         Discontinued, //Ngừng sản xuất
-        OnSale //Đang giảm giá
+        OnSale, //Đang giảm giá
     }
 }

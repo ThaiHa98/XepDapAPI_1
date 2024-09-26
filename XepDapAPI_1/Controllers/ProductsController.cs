@@ -1,17 +1,10 @@
 ﻿using Data.Dto;
-
-
 using Microsoft.AspNetCore.Mvc;
 using XepDapAPI_1.Service.Interfaces;
 using APIThuVien.Common;
 using System.Net;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
-using Microsoft.AspNetCore.Authorization;
 using XepDapAPI_1.Repository.Interface;
 using XeDapAPI.Helper;
-using Data.Models;
-using System;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace XepDapAPI_1.Controllers
 {
@@ -31,22 +24,29 @@ namespace XepDapAPI_1.Controllers
         [HttpPost("Create")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult CreateProducts([FromForm]ProductDto productsDto,[FromForm]IFormFile image)
+        public async Task<IActionResult> CreateProducts([FromForm] ProductDto productsDto)
         {
             try
             {
                 if (productsDto == null)
                 {
-                    return Unauthorized("Invalid slide data");
+                    return BadRequest(new XBaseResult
+                    {
+                        success = false,
+                        httpStatusCode = (int)HttpStatusCode.BadRequest,
+                        message = "Invalid product data"
+                    });
                 }
-                var product = _productsService.Create(productsDto, image);
+                // Tạo sản phẩm
+                var product = await _productsService.Create(productsDto);
+
                 return Ok(new XBaseResult
                 {
                     data = product,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
                     totalCount = product.Id,
-                    message = "Create Successfully"
+                    message = "Product created successfully"
                 });
             }
             catch (Exception ex)
@@ -54,8 +54,8 @@ namespace XepDapAPI_1.Controllers
                 return BadRequest(new XBaseResult
                 {
                     success = false,
-                    httpStatusCode = (int)(HttpStatusCode.BadRequest),
-                    message = ex.Message
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = "An error occurred while creating the product: " + ex.Message
                 });
             }
         }
@@ -300,6 +300,12 @@ namespace XepDapAPI_1.Controllers
                     message = ex.Message
                 });
             }
+        }
+        [HttpGet("product/{productID}")]
+        public IActionResult getproductID(int productID)
+        {
+            var get = _productsInterface.GetProductsId(productID);
+            return Ok(get);
         }
     }
 }

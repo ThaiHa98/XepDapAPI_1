@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(MyDB))]
-    [Migration("20240521064000_Migrations")]
+    [Migration("20240926031937_Migrations")]
     partial class Migrations
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -291,10 +291,6 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BrandId");
-
-                    b.HasIndex("TypeId");
-
                     b.ToTable("Products");
                 });
 
@@ -407,25 +403,6 @@ namespace Data.Migrations
                     b.HasOne("Data.Models.Cart", null)
                         .WithMany("Items")
                         .HasForeignKey("CartId");
-                });
-
-            modelBuilder.Entity("Data.Models.Products", b =>
-                {
-                    b.HasOne("Data.Models.Brand", "Brand")
-                        .WithMany()
-                        .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Data.Models.Type", "Type")
-                        .WithMany()
-                        .HasForeignKey("TypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Brand");
-
-                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("Data.Models.Cart", b =>

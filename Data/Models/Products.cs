@@ -19,8 +19,5 @@ namespace Data.Models
         public int TypeId { get; set; }
         public string TypeName { get; set; }
         public StatusProduct Status { get; set; }
-
-        public Type Type { get; set; }
-        public Brand Brand { get; set; }
     }
 }

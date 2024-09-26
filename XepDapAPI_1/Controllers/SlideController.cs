@@ -28,22 +28,22 @@ namespace XeDapAPI.Controllers
         [HttpPost("Create")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult CreateSlide([FromForm] IFormFile image,[FromForm] SlideDto slideDto)
+        public IActionResult CreateSlide([FromForm] SlideDto slideDto)
         {
             try
             {
                 if (slideDto == null)
                 {
-                    return BadRequest("Invalid slide data");
+                    return BadRequest("Dữ liệu slide không hợp lệ");
                 }
-                var create = _slideIService.Create(slideDto, image);
+
+                var createdSlide = _slideIService.Create(slideDto).Result;
                 return Ok(new XBaseResult
                 {
-                    data = create,
+                    data = createdSlide,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
-                    totalCount = create.Count(),
-                    message = "Create Slide successfully"
+                    message = "Tạo slide thành công"
                 });
             }
             catch (Exception ex)

@@ -1,11 +1,8 @@
 ﻿using Data.DBContext;
 using Data.Dto;
 using Data.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Drawing;
 using XepDapAPI_1.Repository.Interface;
 using XepDapAPI_1.Service.Interfaces;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace XepDapAPI_1.Service.Services
 {
@@ -13,28 +10,41 @@ namespace XepDapAPI_1.Service.Services
     {
         private readonly MyDB _dbContext;
         private readonly IProductsInterface _productsInterface;
-        public ProductsService(MyDB dbContext,IProductsInterface productsInterface)
+        private readonly IConfiguration _configuration;
+        public ProductsService(MyDB dbContext, IProductsInterface productsInterface, IConfiguration configuration)
         {
+            _configuration = configuration;
             _productsInterface = productsInterface;
             _dbContext = dbContext;
         }
-        public Products Create(ProductDto productsDto, IFormFile image)
+        public async Task<Products> Create(ProductDto productsDto)
         {
             try
             {
-                var type = _dbContext.Types.FirstOrDefault(x => x.Id == productsDto.TypeId);
-                if(type == null)
+                var type = await _dbContext.Types.FindAsync(productsDto.TypeId);
+                if (type == null)
                 {
                     throw new Exception("typeId not found");
                 }
-                var brand = _dbContext.Brands.FirstOrDefault(x => x.Id == productsDto.BrandId);
-                if(brand == null)
+
+                var brand = await _dbContext.Brands.FindAsync(productsDto.BrandId);
+                if (brand == null)
                 {
                     throw new Exception("brandId not found");
                 }
+
+                // Kiểm tra xem hình ảnh có hợp lệ không
+                if (productsDto.image == null || productsDto.image.Length == 0)
+                {
+                    throw new Exception("Image is required.");
+                }
+
+                var imagePath = await SaveImageAsync(productsDto.image);
+
                 Products products = new Products
                 {
                     ProductName = productsDto.ProductName,
+                    Image = imagePath,
                     Price = productsDto.Price,
                     PriceHasDecreased = productsDto.PriceHasDecreased,
                     Description = productsDto.Description,
@@ -44,19 +54,17 @@ namespace XepDapAPI_1.Service.Services
                     TypeName = type.Name,
                     BrandId = brand.Id,
                     brandName = brand.BrandName,
+                    Status = Data.Models.Enum.StatusProduct.Available,
                 };
-                if (image != null && image.Length > 0)
-                {
-                    string imagePath = SaveProductImage(image);
-                    products.Image = imagePath;
-                    _dbContext.Products.Add(products);
-                    _dbContext.SaveChanges();
-                }
+
+                await _dbContext.Products.AddAsync(products);
+                await _dbContext.SaveChangesAsync();
                 return products;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                throw new Exception("There is an error when creating a Produc", ex);
+                // Log chi tiết lỗi
+                throw new Exception("There is an error when creating a Product", ex);
             }
         }
 
@@ -65,7 +73,7 @@ namespace XepDapAPI_1.Service.Services
             try
             {
                 var delete = _dbContext.Products.FirstOrDefault(x => x.Id == Id);
-                if(delete == null)
+                if (delete == null)
                 {
                     throw new Exception("Id not found");
                 }
@@ -73,9 +81,9 @@ namespace XepDapAPI_1.Service.Services
                 _dbContext.SaveChanges();
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                throw new Exception("There was an error while deleting the Product",ex);
+                throw new Exception("There was an error while deleting the Product", ex);
             }
         }
 
@@ -147,66 +155,64 @@ namespace XepDapAPI_1.Service.Services
             return resultType;
         }
 
+        private async Task<string> SaveImageAsync(IFormFile image)
+        {
+            try
+            {
+                string currentDataFolder = DateTime.Now.ToString("dd-MM-yyyy");
+                var baseFolder = _configuration.GetValue<string>("BaseAddress");
 
-        public string Update(UpdateProductDto updateProductDto, IFormFile image)
-        {
-            try
-            {
-                var products = _dbContext.Products.FirstOrDefault(x => x.Id == updateProductDto.Id);
-                 if(products == null)
+                // Tạo thư mục Product
+                var productFolder = Path.Combine(baseFolder, "Product");
+
+                if (!Directory.Exists(productFolder))
                 {
-                    throw new Exception("productId not found");
+                    Directory.CreateDirectory(productFolder);
                 }
-                products.Price = updateProductDto.Price;
-                products.PriceHasDecreased = updateProductDto.PriceHasDecreased;
-                products.Description = updateProductDto.Description;
-                if (image != null && image.Length > 0)
+
+                // Tạo thư mục date nằm trong thư mục Product
+                var folderPath = Path.Combine(productFolder, currentDataFolder);
+
+                if (!Directory.Exists(folderPath))
                 {
-                    string imagePath = SaveProductImage(image);
-                    products.Image = imagePath;
+                    Directory.CreateDirectory(folderPath);
                 }
-                _dbContext.SaveChanges();
-                return "Product updated successfully";
-            }
-            catch(Exception ex)
-            {
-                throw new Exception("An error occurred while updating Brand", ex);
-            }
-        }
-        private string SaveProductImage(IFormFile image)
-        {
-            try
-            {
-                string currentDateFolder = DateTime.Now.ToString("dd-MM-yyyy");
-                string imagesFolder = Path.Combine(@"C:\Users\XuanThai\Desktop\ImageXedap", "Prodycts_images", currentDateFolder);
-                if (!Directory.Exists(imagesFolder))
-                {
-                    Directory.CreateDirectory(imagesFolder);
-                }
+
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
-                string filePath = Path.Combine(imagesFolder, fileName);
+                string filePath = Path.Combine(folderPath, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    image.CopyTo(stream);
+                    await image.CopyToAsync(stream); // Lưu hình ảnh vào file
                 }
-                return filePath;
+
+                // Trả về tên thư mục và tên ảnh
+                return Path.Combine("Product", currentDataFolder, fileName);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception($"An error occurred while saving the image: {e.Message}");
+                throw new Exception($"An error occurred while saving the image: {ex.Message}");
             }
         }
+
         public byte[] GetProductImageBytes(string image)
         {
             try
             {
-                if (string.IsNullOrEmpty(image) || !File.Exists(image))
+                if (string.IsNullOrEmpty(image))
                 {
                     throw new FileNotFoundException("Image not found!");
                 }
 
-                return File.ReadAllBytes(image);
+                var baseFolder = _configuration.GetValue<string>("BaseAddress");
+                var fullPath = Path.Combine(baseFolder, image); // Tạo đường dẫn tuyệt đối
+
+                if (!File.Exists(fullPath))
+                {
+                    throw new FileNotFoundException("Image not found!");
+                }
+
+                return File.ReadAllBytes(fullPath);
             }
             catch (Exception e)
             {
@@ -230,6 +236,11 @@ namespace XepDapAPI_1.Service.Services
                 .ToList();
 
             return result;
+        }
+
+        public string Update(UpdateProductDto updateProductDto, IFormFile image)
+        {
+            throw new NotImplementedException();
         }
     }
 }

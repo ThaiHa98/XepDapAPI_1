@@ -5,7 +5,7 @@ namespace XepDapAPI_1.Service.Interfaces
 {
     public interface IProductsIService
     {
-        public Products Create(ProductDto productsDto, IFormFile image);
+        Task<Products> Create(ProductDto productsDto);
         string Update(UpdateProductDto updateProductDto, IFormFile image);
         bool Delete(int Id);
         List<Object> GetBrandName(string keyword);

@@ -2,8 +2,7 @@
 using Data.Dto;
 using Data.Models;
 using Data.Models.Enum;
-using System;
-using System.Xml.Linq;
+using Microsoft.EntityFrameworkCore;
 using XeDapAPI.Service.Interfaces;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -12,43 +11,46 @@ namespace XeDapAPI.Service.Services
     public class SlideService : ISlideIService
     {
         private readonly MyDB _dbContext;
-        public SlideService(MyDB dbContext)
+        private readonly IConfiguration _configuration;
+        public SlideService(MyDB dbContext, IConfiguration configuration)
         {
+            _configuration = configuration;
             _dbContext = dbContext;
         }
-        public string Create(SlideDto slideDto, IFormFile image)
+        public async Task<SlideDto> Create(SlideDto slideDto)
         {
             try
             {
-                if(slideDto == null)
+                if (slideDto == null)
                 {
                     throw new ArgumentNullException(nameof(slideDto), "Slide object is null or missing required information.");
                 }
-                var user = _dbContext.Users.FirstOrDefault(x => x.Id == slideDto.UserId);
-                if (user == null)
+                if (slideDto.Image == null || slideDto.Image.Length == 0)
                 {
-                    throw new ArgumentException("User not found");
+                    throw new Exception("Image is required.");
                 }
+                var imagePath = await SaveImageAsync(slideDto.Image);
+
                 Slide slide = new Slide
                 {
-                    Name = slideDto.SlideName,
+                    Name = slideDto.Name,
                     Url = slideDto.Url,
                     Description = slideDto.Description,
+                    Image = imagePath,
                     Sort = slideDto.Sort,
-                    Status = StatusSlide.Active,
                 };
-                if(image != null && image.Length > 0)
+
+                await _dbContext.Slides.AddAsync(slide);
+                await _dbContext.SaveChangesAsync();
+                SlideDto resultDto = new SlideDto
                 {
-                    string imagePath = SaveProductImage(image);
-                    slide.Image = imagePath;
-                    _dbContext.Slides.Add(slide);
-                    _dbContext.SaveChanges();
-                    return "Product added successfully!";
-                }
-                else
-                {
-                    return "No image provided.";
-                }
+                    Name = slide.Name,
+                    Url = slide.Url,
+                    Description = slide.Description,
+                    Sort = slide.Sort
+                };
+
+                return resultDto;
             }
             catch (Exception ex)
             {
@@ -75,51 +77,78 @@ namespace XeDapAPI.Service.Services
             }
         }
 
-        public byte[] GetSileBytesImage(string imagePath)
+        public byte[] GetSileBytesImage(string image)
         {
             try
             {
-                if(string.IsNullOrEmpty(imagePath) || !File.Exists(imagePath))
+                if (string.IsNullOrEmpty(image))
                 {
-                    throw new FieldAccessException("Image not found!");
+                    throw new FileNotFoundException("Image not found!");
                 }
-                return File.ReadAllBytes(imagePath);
+
+                var baseFolder = _configuration.GetValue<string>("BaseAddress");
+                var fullPath = Path.Combine(baseFolder, image); // Tạo đường dẫn tuyệt đối
+
+                if (!File.Exists(fullPath))
+                {
+                    throw new FileNotFoundException("Image not found!");
+                }
+
+                return File.ReadAllBytes(fullPath);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw new Exception($"An error occurred: {ex.Message}");
+                throw new Exception($"An error occurred: {e.Message}");
             }
         }
 
-        public byte[] GetSlideBytesImageid4(string imagePath)
+        public byte[] GetSlideBytesImageid4(string image)
         {
             try
             {
-                if(string.IsNullOrEmpty(imagePath) || !File.Exists(imagePath))
+                if (string.IsNullOrEmpty(image))
                 {
-                    throw new FieldAccessException("Image not found!");
+                    throw new FileNotFoundException("Image not found!");
                 }
-                return File.ReadAllBytes(imagePath);
+
+                var baseFolder = _configuration.GetValue<string>("BaseAddress");
+                var fullPath = Path.Combine(baseFolder, image); // Tạo đường dẫn tuyệt đối
+
+                if (!File.Exists(fullPath))
+                {
+                    throw new FileNotFoundException("Image not found!");
+                }
+
+                return File.ReadAllBytes(fullPath);
             }
-            catch( Exception ex)
+            catch (Exception e)
             {
-                throw new Exception($"An error occurred: {ex.Message}");
+                throw new Exception($"An error occurred: {e.Message}");
             }
         }
 
-        public byte[] GetSlideBytesImageid5(string imagePath)
+        public byte[] GetSlideBytesImageid5(string image)
         {
             try
             {
-                if (string.IsNullOrEmpty(imagePath) || !File.Exists(imagePath))
+                if (string.IsNullOrEmpty(image))
                 {
-                    throw new FieldAccessException("Image not found!");
+                    throw new FileNotFoundException("Image not found!");
                 }
-                return File.ReadAllBytes(imagePath);
+
+                var baseFolder = _configuration.GetValue<string>("BaseAddress");
+                var fullPath = Path.Combine(baseFolder, image); // Tạo đường dẫn tuyệt đối
+
+                if (!File.Exists(fullPath))
+                {
+                    throw new FileNotFoundException("Image not found!");
+                }
+
+                return File.ReadAllBytes(fullPath);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw new Exception($"An error occurred: {ex.Message}");
+                throw new Exception($"An error occurred: {e.Message}");
             }
         }
 
@@ -146,28 +175,43 @@ namespace XeDapAPI.Service.Services
                 throw new Exception("An error occurred while updating Slides",ex);
             }
         }
-        private string SaveProductImage(IFormFile image)
+        private async Task<string> SaveImageAsync(IFormFile image)
         {
             try
             {
-                string currentDateFolder = DateTime.Now.ToString("dd-MM-yyyy");
-                string imagesFolder = Path.Combine(@"C:\Users\XuanThai\Desktop\ImageXedap", "Slide_images", currentDateFolder);
-                if (!Directory.Exists(imagesFolder))
+                string currentDataFolder = DateTime.Now.ToString("dd-MM-yyyy");
+                var baseFolder = _configuration.GetValue<string>("BaseAddress");
+
+                // Tạo thư mục Product
+                var productFolder = Path.Combine(baseFolder, "Slide");
+
+                if (!Directory.Exists(productFolder))
                 {
-                    Directory.CreateDirectory(imagesFolder);
+                    Directory.CreateDirectory(productFolder);
                 }
+
+                // Tạo thư mục date nằm trong thư mục Product
+                var folderPath = Path.Combine(productFolder, currentDataFolder);
+
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
-                string filePath = Path.Combine(imagesFolder, fileName);
+                string filePath = Path.Combine(folderPath, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    image.CopyTo(stream);
+                    await image.CopyToAsync(stream); // Lưu hình ảnh vào file
                 }
-                return filePath;
+
+                // Trả về tên thư mục và tên ảnh
+                return Path.Combine("Slide", currentDataFolder, fileName);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception($"An error occurred while saving the image: {e.Message}");
+                throw new Exception($"An error occurred while saving the image: {ex.Message}");
             }
         }
     }

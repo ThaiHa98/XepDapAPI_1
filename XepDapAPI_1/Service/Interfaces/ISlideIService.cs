@@ -4,7 +4,7 @@ namespace XeDapAPI.Service.Interfaces
 {
     public interface ISlideIService
     {
-        string Create(SlideDto slideDto, IFormFile image);
+        Task<SlideDto> Create(SlideDto slideDto);
         string Update(UpdateSlideDto updateSlideDto);
         bool Delete(int Id);
         byte[] GetSileBytesImage(string imagePath);
