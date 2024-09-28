@@ -119,8 +119,8 @@ namespace XepDapAPI_1.Service.Services
                 var caerInfo = new GetCartInfDto
                 {
                     CartId = item.CartId,
-                    ProductID = item.ProductID,
-                    ProducName = item.ProducName,
+                    ProductId = item.ProductId,
+                    ProductName = item.ProductName,
                     PriceProduct = item.PriceProduct,
                     TotalPrice = item.TotalPrice,
                     Quantity = item.Quantity,

@@ -23,8 +23,8 @@ namespace XepDapAPI_1.Repository.Repositorys
             .Select(x => new GetCartInfDto
             {
                 CartId = x.Id,
-                ProductID = x.ProductId,
-                ProducName = x.ProductName,
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
                 PriceProduct = x.PriceProduct,
                 TotalPrice = x.TotalPrice,
                 Quantity = x.Quantity,
