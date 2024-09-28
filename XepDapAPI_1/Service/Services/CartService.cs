@@ -36,7 +36,7 @@ namespace XepDapAPI_1.Service.Services
                     throw new Exception("Product ID not found");
                 }
                 decimal priceToUse = product.PriceHasDecreased > 0 ? product.PriceHasDecreased : product.Price;
-                var cart = _dbContext.Carts.FirstOrDefault(x => x.ProductID == productId && x.UserId == cartDto.UserId);
+                var cart = _dbContext.Carts.FirstOrDefault(x => x.ProductId == productId && x.UserId == cartDto.UserId);
                 if (cart != null)
                 {
                     cart.Quantity += 1;
@@ -47,8 +47,8 @@ namespace XepDapAPI_1.Service.Services
                     Cart newCart = new Cart
                     {
                         UserId = user.Id,
-                        ProductID = productId,
-                        ProducName = product.ProductName,
+                        ProductId = productId,
+                        ProductName = product.ProductName,
                         PriceProduct = priceToUse,
                         TotalPrice = priceToUse,
                         Quantity = 1,
@@ -87,7 +87,7 @@ namespace XepDapAPI_1.Service.Services
         {
             try
             {
-                var cartItems = _dbContext.Carts.Where(x => x.UserId == userid && productIds.Contains(x.ProductID)).ToList();
+                var cartItems = _dbContext.Carts.Where(x => x.UserId == userid && productIds.Contains(x.ProductId)).ToList();
                 if (cartItems == null || !cartItems.Any())
                 {
                     throw new Exception("No cart items found for the specified userId and productIds.");
@@ -136,7 +136,7 @@ namespace XepDapAPI_1.Service.Services
         {
             try
             {
-                var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == UserId && x.ProductID == createProductId);
+                var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == UserId && x.ProductId == createProductId);
                 if (cart == null) 
                 {
                     throw new Exception("UserId & ProducId not found");
@@ -162,7 +162,7 @@ namespace XepDapAPI_1.Service.Services
         {
             try
             {
-                var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == UserId && x.ProductID == createProductId);
+                var cart = _dbContext.Carts.FirstOrDefault(x => x.UserId == UserId && x.ProductId == createProductId);
                 if(cart == null)
                 {
                     throw new Exception("UserId & ProducId not found");

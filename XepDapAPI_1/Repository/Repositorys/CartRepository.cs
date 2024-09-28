@@ -23,8 +23,8 @@ namespace XepDapAPI_1.Repository.Repositorys
             .Select(x => new GetCartInfDto
             {
                 CartId = x.Id,
-                ProductID = x.ProductID,
-                ProducName = x.ProducName,
+                ProductID = x.ProductId,
+                ProducName = x.ProductName,
                 PriceProduct = x.PriceProduct,
                 TotalPrice = x.TotalPrice,
                 Quantity = x.Quantity,
@@ -35,7 +35,7 @@ namespace XepDapAPI_1.Repository.Repositorys
 
         public Cart GetProducId(int productId)
         {
-            return _dbContext.Carts.FirstOrDefault(x => x.ProductID == productId);
+            return _dbContext.Carts.FirstOrDefault(x => x.ProductId == productId);
         }
     }
 }

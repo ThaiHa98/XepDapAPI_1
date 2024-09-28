@@ -91,12 +91,12 @@ namespace Data.Migrations
                     b.Property<decimal>("PriceProduct")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("ProducName")
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProductName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProductID")
-                        .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");

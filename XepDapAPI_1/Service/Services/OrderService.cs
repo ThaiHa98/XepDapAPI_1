@@ -57,8 +57,8 @@ namespace XepDapAPI_1.Service.Services
                             var orderDetail = new Order_Details
                             {
                                 OrderID = order.No_,
-                                ProductID = cart.ProductID,
-                                ProductName = cart.ProducName,
+                                ProductID = cart.ProductId,
+                                ProductName = cart.ProductName,
                                 Quantity = cart.Quantity,
                                 PriceProduc = cart.PriceProduct,
                                 TotalPrice = cart.TotalPrice,
