@@ -220,7 +220,7 @@ namespace XepDapAPI_1.Service.Services
             }
         }
 
-        public List<ProductGetAllInfDto> GetProductsInPriceRange(int minPrice, int maxPrice)
+        public List<ProductGetAllInfDto> GetProductsInPriceRange(decimal minPrice, decimal maxPrice)
         {
             List<ProductGetAllInfDto> products = _productsInterface.GetAllProducts();
             List<ProductGetAllInfDto> result = products
@@ -241,6 +241,27 @@ namespace XepDapAPI_1.Service.Services
         public string Update(UpdateProductDto updateProductDto, IFormFile image)
         {
             throw new NotImplementedException();
+        }
+
+        public List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(decimal minPrice, decimal maxPrice, string? brandsName)
+        {
+            List<ProductGetAllInfPriceDto> products = _productsInterface.GetProductsWithinPriceRangeAndBrand();
+
+            List<ProductGetAllInfPriceDto> result = products
+                .Where(p => p.Price >= minPrice && p.Price <= maxPrice
+                             && (string.IsNullOrEmpty(brandsName) || p.BrandNamer.Equals(brandsName, StringComparison.OrdinalIgnoreCase)))
+                .Select(p => new ProductGetAllInfPriceDto
+                {
+                    Id = p.Id,
+                    ProductName = p.ProductName,
+                    Price = p.Price,
+                    PriceHasDecreased = p.PriceHasDecreased,
+                    Image = p.Image,
+                    BrandNamer = p.BrandNamer
+                })
+                .ToList();
+
+            return result;
         }
     }
 }

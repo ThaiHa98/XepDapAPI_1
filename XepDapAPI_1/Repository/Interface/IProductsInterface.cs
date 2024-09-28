@@ -10,5 +10,6 @@ namespace XepDapAPI_1.Repository.Interface
         List<ProductTypeInfDto> GetAllTypeName(string keyword,int limit = 6);
         List<ProductPriceHasDecreasedInfDto> SearchProductsByPriceHasDecreased();
         Products GetProductsId(int Id);
+        List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand();
     }
 }

@@ -274,21 +274,30 @@ namespace XepDapAPI_1.Controllers
         //[Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetListPrice([FromQuery]int minPrice,[FromQuery]int maxPrice)
+        public IActionResult GetListPrice([FromQuery] decimal minPrice, [FromQuery] decimal maxPrice)
         {
             try
-            {   if(minPrice == null || maxPrice == null)
+            {
+                // Kiểm tra nếu khoảng giá hợp lệ
+                if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice)
                 {
-                    throw new ArgumentNullException("minPrice & maxPrice not found");
+                    return BadRequest(new XBaseResult
+                    {
+                        success = false,
+                        httpStatusCode = (int)HttpStatusCode.BadRequest,
+                        message = "Giá không hợp lệ. Vui lòng nhập khoảng giá đúng."
+                    });
                 }
+
                 var getPrice = _productsService.GetProductsInPriceRange(minPrice, maxPrice);
+
                 return Ok(new XBaseResult
                 {
                     data = getPrice,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
                     totalCount = getPrice.Count(),
-                    message = "List",
+                    message = "Danh sách sản phẩm trong khoảng giá."
                 });
             }
             catch (Exception ex)
@@ -301,11 +310,52 @@ namespace XepDapAPI_1.Controllers
                 });
             }
         }
+
         [HttpGet("product/{productID}")]
         public IActionResult getproductID(int productID)
         {
             var get = _productsInterface.GetProductsId(productID);
             return Ok(get);
+        }
+
+        [HttpGet("GetProductsWithinPriceRangeAndBrand")]
+        //[Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetProductsWithinPriceRangeAndBrand([FromQuery] decimal minPrice, [FromQuery] decimal maxPrice, [FromQuery] string? brandsName)
+        {
+            try
+            {
+                if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice)
+                {
+                    return BadRequest(new XBaseResult
+                    {
+                        success = false,
+                        httpStatusCode = (int)HttpStatusCode.BadRequest,
+                        message = "Giá không hợp lệ. Vui lòng nhập khoảng giá đúng."
+                    });
+                }
+
+                var getPrice = _productsService.GetProductsWithinPriceRangeAndBrand(minPrice, maxPrice, brandsName);
+
+                return Ok(new XBaseResult
+                {
+                    data = getPrice,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = getPrice.Count(),
+                    message = "Danh sách sản phẩm trong khoảng giá."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = "Đã xảy ra lỗi: " + ex.Message
+                });
+            }
         }
     }
 }

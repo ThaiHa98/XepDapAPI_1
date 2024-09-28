@@ -68,6 +68,21 @@ namespace XepDapAPI_1.Repository.Repositorys
             return _dbContext.Products.FirstOrDefault(x => x.Id == Id);
         }
 
+        public List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand()
+        {
+            return _dbContext.Products
+                 .Select(x => new ProductGetAllInfPriceDto
+                 {
+                     Id = x.Id,
+                     ProductName = x.ProductName,
+                     Price = x.Price,
+                     PriceHasDecreased = x.PriceHasDecreased,
+                     Image = x.Image,
+                     BrandNamer = x.brandName,
+                 })
+                 .ToList();
+        }
+
         public List<ProductPriceHasDecreasedInfDto> SearchProductsByPriceHasDecreased()
         {
             return _dbContext.Products
