@@ -23,7 +23,7 @@ namespace XepDapAPI_1.Controllers
         [HttpPost("Create")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult CreateProduct_Details([FromBody]Product_DetailDto product_DetailDto)
+        public IActionResult CreateProduct_Details([FromForm]Product_DetailDto product_DetailDto)
         {
             try
             {

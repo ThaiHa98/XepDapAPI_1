@@ -5,7 +5,7 @@ namespace XepDapAPI_1.Service.Interfaces
 {
     public interface IProduct_DetailIService
     {
-        public Product_Details Create(Product_DetailDto product_DetailDto);
+        Task<Product_Details> Create(Product_DetailDto product_DetailDto);
         string Update(UpdateProduct_DetailsDto updateProduct_DetailsDto);
         bool Delete(int Id);
     }

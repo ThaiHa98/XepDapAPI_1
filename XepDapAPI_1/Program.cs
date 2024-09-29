@@ -14,13 +14,16 @@ using XepDapAPI_1.Repository.Interface;
 using XepDapAPI_1.Repository.Repositorys;
 using XepDapAPI_1.Service.Interfaces;
 using XepDapAPI_1.Service.Services;
-
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<MyDB>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DB"));
 });
+
+builder.Services.AddControllersWithViews()
+    .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
 // Add services to the container.
 builder.Services.AddScoped<IUserIService, UserService>();

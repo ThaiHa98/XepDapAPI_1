@@ -1,6 +1,7 @@
 ﻿using Data.DBContext;
 using Data.Dto;
 using Data.Models;
+using Microsoft.Extensions.Configuration;
 using XepDapAPI_1.Service.Interfaces;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -9,31 +10,44 @@ namespace XepDapAPI_1.Service.Services
     public class Product_DetailService : IProduct_DetailIService
     {
         private readonly MyDB _dbContext;
-        public Product_DetailService(MyDB dbContext)
+        private readonly IConfiguration _configuration;
+        public Product_DetailService(MyDB dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
+            _configuration = configuration;
         }
-        public Product_Details Create(Product_DetailDto product_DetailDto)
+        public async Task<Product_Details> Create(Product_DetailDto product_DetailDto)
         {
             try
             {
-
                 var products = _dbContext.Products.SingleOrDefault(x => x.Id == product_DetailDto.ProductID);
 
                 if (products == null)
                 {
                     throw new Exception("Product not found");
                 }
+
+                // Tạo danh sách lưu trữ đường dẫn hình ảnh
+                List<string> imagePaths = new List<string>();
+
+                // Lưu từng ảnh và thêm đường dẫn vào danh sách
+                foreach (var image in product_DetailDto.Imgage)
+                {
+                    var imagePath = await SaveImageAsync(image);
+                    imagePaths.Add(imagePath);
+                }
+
                 Product_Details product_Details = new Product_Details
                 {
                     ProductID = products.Id,
                     BrandId = products.BrandId,
                     Price = products.Price,
                     PriceHasDecreased = products.PriceHasDecreased,
-                    Imgage = products.Image,
+                    Imgage = string.Join(";", imagePaths), // Kết hợp các đường dẫn thành một chuỗi
                     Weight = product_DetailDto.Weight,
                     Other_Details = product_DetailDto.Other_Details,
                 };
+
                 _dbContext.Product_Details.Add(product_Details);
                 _dbContext.SaveChanges();
                 return product_Details;
@@ -81,6 +95,45 @@ namespace XepDapAPI_1.Service.Services
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while updating Product_Details", ex);
+            }
+        }
+        private async Task<string> SaveImageAsync(IFormFile image)
+        {
+            try
+            {
+                string currentDataFolder = DateTime.Now.ToString("dd-MM-yyyy");
+                var baseFolder = _configuration.GetValue<string>("BaseAddress");
+
+                // Tạo thư mục Product
+                var productFolder = Path.Combine(baseFolder, "Product");
+
+                if (!Directory.Exists(productFolder))
+                {
+                    Directory.CreateDirectory(productFolder);
+                }
+
+                // Tạo thư mục date nằm trong thư mục Product
+                var folderPath = Path.Combine(productFolder, currentDataFolder);
+
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                string filePath = Path.Combine(folderPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await image.CopyToAsync(stream); // Lưu hình ảnh vào file
+                }
+
+                // Trả về tên thư mục và tên ảnh
+                return Path.Combine("Product", currentDataFolder, fileName);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while saving the image: {ex.Message}");
             }
         }
     }
