@@ -105,7 +105,7 @@ namespace XepDapAPI_1.Service.Services
                 var baseFolder = _configuration.GetValue<string>("BaseAddress");
 
                 // Tạo thư mục Product
-                var productFolder = Path.Combine(baseFolder, "Product");
+                var productFolder = Path.Combine(baseFolder, "Product_Detail");
 
                 if (!Directory.Exists(productFolder))
                 {
@@ -129,7 +129,7 @@ namespace XepDapAPI_1.Service.Services
                 }
 
                 // Trả về tên thư mục và tên ảnh
-                return Path.Combine("Product", currentDataFolder, fileName);
+                return Path.Combine("Product_Detail", currentDataFolder, fileName);
             }
             catch (Exception ex)
             {
