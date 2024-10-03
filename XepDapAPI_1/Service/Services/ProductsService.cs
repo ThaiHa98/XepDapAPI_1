@@ -1,6 +1,7 @@
 ﻿using Data.DBContext;
 using Data.Dto;
 using Data.Models;
+using Data.Models.Enum;
 using XepDapAPI_1.Repository.Interface;
 using XepDapAPI_1.Service.Interfaces;
 
@@ -219,24 +220,6 @@ namespace XepDapAPI_1.Service.Services
             }
         }
 
-        public List<ProductGetAllInfDto> GetProductsInPriceRange(decimal minPrice, decimal maxPrice)
-        {
-            List<ProductGetAllInfDto> products = _productsInterface.GetAllProducts();
-            List<ProductGetAllInfDto> result = products
-                .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
-                .Select(p => new ProductGetAllInfDto
-                {
-                    Id = p.Id,
-                    ProductName = p.ProductName,
-                    Price = p.Price,
-                    PriceHasDecreased = p.PriceHasDecreased,
-                    Image = p.Image
-                })
-                .ToList();
-
-            return result;
-        }
-
         public string Update(UpdateProductDto updateProductDto, IFormFile image)
         {
             throw new NotImplementedException();
@@ -249,6 +232,8 @@ namespace XepDapAPI_1.Service.Services
             List<ProductGetAllInfPriceDto> result = products
                 .Where(p => p.Price >= minPrice && p.Price <= maxPrice
                              && (string.IsNullOrEmpty(brandsName) || p.BrandNamer.Equals(brandsName, StringComparison.OrdinalIgnoreCase)))
+                .GroupBy(p => p.ProductName)  // Nhóm theo ProductName
+                .Select(group => group.First())  // Chọn sản phẩm đầu tiên trong mỗi nhóm (loại bỏ trùng)
                 .Select(p => new ProductGetAllInfPriceDto
                 {
                     Id = p.Id,
@@ -261,6 +246,37 @@ namespace XepDapAPI_1.Service.Services
                 .ToList();
 
             return result;
+        }
+
+        public List<Product_detail> GetProductsByNameAndColor(string productName, string? color)
+        {
+            var query = _dbContext.Products.AsQueryable();
+
+            if (!string.IsNullOrEmpty(productName))
+            {
+                query = query.Where(p => p.ProductName == productName);
+            }
+
+            if (!string.IsNullOrEmpty(color))
+            {
+                query = query.Where(p => p.Colors == color);
+            }
+
+            var productDetails = query.Select(p => new Product_detail
+            {
+                Id = p.Id,
+                ProductName = p.ProductName,
+                Price = p.Price,
+                PriceHasDecreased = p.PriceHasDecreased,
+                Description = p.Description,
+                Image = p.Image,
+                brandName = p.brandName,
+                TypeName = p.TypeName,
+                Colors = p.Colors,
+                Status = ((StatusProduct)p.Status).ToString()
+            }).ToList();
+
+            return productDetails;
         }
     }
 }

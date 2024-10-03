@@ -12,7 +12,7 @@ namespace XepDapAPI_1.Service.Interfaces
         List<Object> GetTypeName(string keyword, int limit = 6);
         List<Object> GetPriceHasDecreased();
         byte[] GetProductImageBytes(string imagePath);
-        List<ProductGetAllInfDto> GetProductsInPriceRange(decimal minPrice, decimal maxPrice);
         List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(decimal minPrice, decimal maxPrice, string brandsName);
+        List<Product_detail> GetProductsByNameAndColor(string productName, string? color);
     }
 }

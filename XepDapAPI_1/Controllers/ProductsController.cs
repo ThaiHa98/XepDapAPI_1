@@ -5,6 +5,7 @@ using APIThuVien.Common;
 using System.Net;
 using XepDapAPI_1.Repository.Interface;
 using XeDapAPI.Helper;
+using XepDapAPI_1.Service.Services;
 
 namespace XepDapAPI_1.Controllers
 {
@@ -270,46 +271,6 @@ namespace XepDapAPI_1.Controllers
                 });
             }
         }
-        [HttpGet("GetListPrice")]
-        //[Authorize]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        public IActionResult GetListPrice([FromQuery] decimal minPrice, [FromQuery] decimal maxPrice)
-        {
-            try
-            {
-                // Kiểm tra nếu khoảng giá hợp lệ
-                if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice)
-                {
-                    return BadRequest(new XBaseResult
-                    {
-                        success = false,
-                        httpStatusCode = (int)HttpStatusCode.BadRequest,
-                        message = "Giá không hợp lệ. Vui lòng nhập khoảng giá đúng."
-                    });
-                }
-
-                var getPrice = _productsService.GetProductsInPriceRange(minPrice, maxPrice);
-
-                return Ok(new XBaseResult
-                {
-                    data = getPrice,
-                    success = true,
-                    httpStatusCode = (int)HttpStatusCode.OK,
-                    totalCount = getPrice.Count(),
-                    message = "Danh sách sản phẩm trong khoảng giá."
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new XBaseResult
-                {
-                    success = false,
-                    httpStatusCode = (int)HttpStatusCode.BadRequest,
-                    message = ex.Message
-                });
-            }
-        }
 
         [HttpGet("product/{productID}")]
         public IActionResult getproductID(int productID)
@@ -354,6 +315,48 @@ namespace XepDapAPI_1.Controllers
                     success = false,
                     httpStatusCode = (int)HttpStatusCode.BadRequest,
                     message = "Đã xảy ra lỗi: " + ex.Message
+                });
+            }
+        }
+        [HttpGet("GetProductsByNameAndColor")]
+        //[Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetProductsByNameAndColor(string productName, string? color)
+        {
+            try
+            {
+                // Gọi phương thức lấy sản phẩm dựa trên productName và màu sắc
+                var productDetails = _productsService.GetProductsByNameAndColor(productName, color);
+
+                // Kiểm tra nếu không tìm thấy sản phẩm
+                if (productDetails == null || !productDetails.Any())
+                {
+                    return BadRequest(new XBaseResult
+                    {
+                        success = false,
+                        httpStatusCode = (int)HttpStatusCode.NotFound,
+                        message = "Không tìm thấy sản phẩm nào với thông tin cung cấp."
+                    });
+                }
+
+                // Trả về danh sách sản phẩm
+                return Ok(new XBaseResult
+                {
+                    data = productDetails,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    totalCount = productDetails.Count(),
+                    message = "Danh sách sản phẩm theo yêu cầu."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
                 });
             }
         }
