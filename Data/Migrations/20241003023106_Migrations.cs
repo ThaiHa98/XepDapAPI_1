@@ -117,6 +117,7 @@ namespace Data.Migrations
                     brandName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TypeId = table.Column<int>(type: "int", nullable: false),
                     TypeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Colors = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>

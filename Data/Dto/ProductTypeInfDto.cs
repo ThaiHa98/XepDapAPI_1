@@ -11,6 +11,7 @@ namespace Data.Dto
         public string Description { get; set; }
         public string Image { get; set; }
         public string TypeName { get; set; }
+        public string Colors { get; set; }
 
     }
 }

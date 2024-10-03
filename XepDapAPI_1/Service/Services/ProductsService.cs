@@ -54,6 +54,7 @@ namespace XepDapAPI_1.Service.Services
                     TypeName = type.Name,
                     BrandId = brand.Id,
                     brandName = brand.BrandName,
+                    Colors = productsDto.Colors,
                     Status = Data.Models.Enum.StatusProduct.Available,
                 };
 
@@ -133,10 +134,7 @@ namespace XepDapAPI_1.Service.Services
         public List<object> GetTypeName(string keyword, int limit = 8)
         {
             List<object> resultType = new List<object>();
-
             List<ProductTypeInfDto> products = _productsInterface.GetAllTypeName(keyword);
-
-            // Lấy ra tối đa 'limit' sản phẩm từ danh sách
             for (int i = 0; i < Math.Min(limit, products.Count); i++)
             {
                 var item = products[i];
@@ -149,6 +147,7 @@ namespace XepDapAPI_1.Service.Services
                     Description = item.Description,
                     Image = item.Image,
                     TypeName = item.TypeName,
+                    Colors = item.Colors,
                 };
                 resultType.Add(productTypeInfo);
             }

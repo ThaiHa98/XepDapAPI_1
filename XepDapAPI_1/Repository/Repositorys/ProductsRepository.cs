@@ -46,8 +46,12 @@ namespace XepDapAPI_1.Repository.Repositorys
         {
             keyword = keyword.ToLower();
 
-            return _dbContext.Products
+            // Lấy tất cả các sản phẩm có TypeName khớp với từ khóa
+            var products = _dbContext.Products
                 .Where(x => x.TypeName.ToLower().Contains(keyword))
+                .ToList() // Chuyển đổi kết quả sang danh sách trong bộ nhớ
+                .GroupBy(x => x.ProductName) // Nhóm theo tên sản phẩm
+                .Select(g => g.FirstOrDefault()) // Lấy sản phẩm đầu tiên trong mỗi nhóm
                 .OrderBy(x => x.TypeName)
                 .Take(limit) // Lấy ra tối đa 'limit' sản phẩm
                 .Select(x => new ProductTypeInfDto
@@ -60,6 +64,8 @@ namespace XepDapAPI_1.Repository.Repositorys
                     TypeName = x.TypeName
                 })
                 .ToList();
+
+            return products;
         }
 
 

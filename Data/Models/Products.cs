@@ -18,6 +18,7 @@ namespace Data.Models
         public string brandName { get; set; }
         public int TypeId { get; set; }
         public string TypeName { get; set; }
+        public string Colors { get; set; }
         public StatusProduct Status { get; set; }
     }
 }
