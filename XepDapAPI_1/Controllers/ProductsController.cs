@@ -329,8 +329,9 @@ namespace XepDapAPI_1.Controllers
                 // Gọi phương thức lấy sản phẩm dựa trên productName và màu sắc
                 var productDetails = _productsService.GetProductsByNameAndColor(productName, color);
 
-                // Kiểm tra nếu không tìm thấy sản phẩm
-                if (productDetails == null || !productDetails.Any())
+                // Kiểm tra nếu không tìm thấy sản phẩm với màu cụ thể hoặc danh sách sản phẩm rỗng
+                if ((productDetails.ProductDetail == null && productDetails.ProductDetails == null) ||
+                    (productDetails.ProductDetails != null && !productDetails.ProductDetails.Any()))
                 {
                     return BadRequest(new XBaseResult
                     {
@@ -340,13 +341,13 @@ namespace XepDapAPI_1.Controllers
                     });
                 }
 
-                // Trả về danh sách sản phẩm
+                // Trả về chi tiết sản phẩm và danh sách màu sắc
                 return Ok(new XBaseResult
                 {
                     data = productDetails,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
-                    totalCount = productDetails.Count(),
+                    totalCount = productDetails.ProductDetails?.Count ?? 1, // Đếm số lượng sản phẩm
                     message = "Danh sách sản phẩm theo yêu cầu."
                 });
             }

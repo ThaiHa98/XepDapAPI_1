@@ -13,6 +13,6 @@ namespace XepDapAPI_1.Service.Interfaces
         List<Object> GetPriceHasDecreased();
         byte[] GetProductImageBytes(string imagePath);
         List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(decimal minPrice, decimal maxPrice, string brandsName);
-        List<Product_detail> GetProductsByNameAndColor(string productName, string? color);
+        ProductDetailWithColors GetProductsByNameAndColor(string productName, string? color);
     }
 }

@@ -15,4 +15,11 @@ namespace Data.Dto
         public string Colors { get; set; }
         public string Status { get; set; }
     }
+
+    public class ProductDetailWithColors
+    {
+        public Product_detail ProductDetail { get; set; }
+        public List<Product_detail> ProductDetails { get; set; } // Thêm thuộc tính này
+        public List<string> AvailableColors { get; set; }
+    }
 }

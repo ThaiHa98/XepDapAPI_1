@@ -248,35 +248,61 @@ namespace XepDapAPI_1.Service.Services
             return result;
         }
 
-        public List<Product_detail> GetProductsByNameAndColor(string productName, string? color)
+        public ProductDetailWithColors GetProductsByNameAndColor(string productName, string? color)
         {
-            var query = _dbContext.Products.AsQueryable();
-
-            if (!string.IsNullOrEmpty(productName))
+            var result = new ProductDetailWithColors();
+            var productsQuery = _dbContext.Products.Where(p => p.ProductName == productName);
+            if (!productsQuery.Any())
             {
-                query = query.Where(p => p.ProductName == productName);
+                throw new Exception("Không tìm thấy sản phẩm nào với thông tin cung cấp.");
             }
-
             if (!string.IsNullOrEmpty(color))
             {
-                query = query.Where(p => p.Colors == color);
+                var productWithSpecificColor = productsQuery.FirstOrDefault(p => p.Colors == color);
+                if (productWithSpecificColor != null)
+                {
+                    result.ProductDetail = new Product_detail
+                    {
+                        Id = productWithSpecificColor.Id,
+                        ProductName = productWithSpecificColor.ProductName,
+                        Price = productWithSpecificColor.Price,
+                        PriceHasDecreased = productWithSpecificColor.PriceHasDecreased,
+                        Description = productWithSpecificColor.Description,
+                        Image = productWithSpecificColor.Image,
+                        brandName = productWithSpecificColor.brandName,
+                        TypeName = productWithSpecificColor.TypeName,
+                        Colors = productWithSpecificColor.Colors,
+                        Status = ((StatusProduct)productWithSpecificColor.Status).ToString()
+                    };
+                }
+                else
+                {
+                    result.ProductDetail = null;
+                }
             }
-
-            var productDetails = query.Select(p => new Product_detail
+            else
             {
-                Id = p.Id,
-                ProductName = p.ProductName,
-                Price = p.Price,
-                PriceHasDecreased = p.PriceHasDecreased,
-                Description = p.Description,
-                Image = p.Image,
-                brandName = p.brandName,
-                TypeName = p.TypeName,
-                Colors = p.Colors,
-                Status = ((StatusProduct)p.Status).ToString()
-            }).ToList();
+                result.ProductDetails = productsQuery
+                    .Select(p => new Product_detail
+                    {
+                        Id = p.Id,
+                        ProductName = p.ProductName,
+                        Price = p.Price,
+                        PriceHasDecreased = p.PriceHasDecreased,
+                        Description = p.Description,
+                        Image = p.Image,
+                        brandName = p.brandName,
+                        TypeName = p.TypeName,
+                        Colors = p.Colors,
+                        Status = ((StatusProduct)p.Status).ToString()
+                    }).ToList();
+            }
+            result.AvailableColors = productsQuery
+                .Select(p => p.Colors)
+                .Distinct()
+                .ToList();
 
-            return productDetails;
+            return result;
         }
     }
 }

@@ -22,6 +22,8 @@ namespace Data.Models
         [Required]
         public string? DateOfBirth { get; set; }
         [Required]
+        public Roles roles { set; get; }
+        [Required]
         public DateTime Create { get; set; }
     }
 }
