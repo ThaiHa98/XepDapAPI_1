@@ -316,6 +316,9 @@ namespace Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("PriceHasDecreased")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("Sort")
                         .HasColumnType("int");
 
@@ -348,6 +351,10 @@ namespace Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProductType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -394,6 +401,9 @@ namespace Data.Migrations
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("roles")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

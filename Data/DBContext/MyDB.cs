@@ -72,6 +72,10 @@ namespace Data.DBContext
             modelBuilder.Entity<Product_Details>()
                 .Property(x => x.PriceHasDecreased)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Slide>()
+                .Property(x => x.PriceHasDecreased)
+                .HasColumnType("decimal(18,2)");
         }
     }
 }
