@@ -1,4 +1,5 @@
 ﻿using Data.DBContext;
+using Data.Dto;
 using Data.Models;
 using Data.Models.Enum;
 using XeDapAPI.Dto;
@@ -69,22 +70,63 @@ namespace XeDapAPI.Service.Services
             }
         }
 
-        public User RegisterUser(User user)
+        public UserDto RegisterUser(UserDto userdto)
         {
             try
             {
-                if(user == null)
+                if (userdto == null)
                 {
-                    throw new ArgumentNullException(nameof(user), "User object is null or missing required information.");
+                    throw new ArgumentNullException(nameof(userdto), "User object is null or missing required information.");
                 }
-                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+                var user = new User
+                {
+                    Name = userdto.Name,
+                    Email = userdto.Email,
+                    Password = BCrypt.Net.BCrypt.HashPassword(userdto.Password),
+                    Address = userdto.Address,
+                    City = userdto.City,
+                    Phone = userdto.Phone,
+                    DateOfBirth = userdto.DateOfBirth,
+                };
+                user.roles = Roles.User;
+                user.Create = DateTime.Now;
                 _DbContex.Users.Add(user);
                 _DbContex.SaveChanges();
-                return user;
+                return userdto;
             }
             catch (Exception ex)
             {
-                throw new Exception("There is an error when creating a User",ex);
+                throw new Exception("There is an error when creating a User", ex);
+            }
+        }
+
+        public UserDto RegisterUserAdmin(UserDto userdto)
+        {
+            try
+            {
+                if (userdto == null)
+                {
+                    throw new ArgumentNullException(nameof(userdto), "User object is null or missing required information.");
+                }
+                var user = new User
+                {
+                    Name = userdto.Name,
+                    Email = userdto.Email,
+                    Password = BCrypt.Net.BCrypt.HashPassword(userdto.Password),
+                    Address = userdto.Address,
+                    City = userdto.City,
+                    Phone = userdto.Phone,
+                    DateOfBirth = userdto.DateOfBirth,
+                };
+                user.roles = Roles.ManagerMent;
+                user.Create = DateTime.Now;
+                _DbContex.Users.Add(user);
+                _DbContex.SaveChanges();
+                return userdto;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("There is an error when creating a User", ex);
             }
         }
 

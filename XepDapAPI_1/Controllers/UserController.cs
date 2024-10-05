@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using Data.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
+using Data.Dto;
 
 namespace XeDapAPI.Controllers
 {
@@ -28,17 +29,16 @@ namespace XeDapAPI.Controllers
         [HttpPost("Create")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult CreateLogin(User user)
+        public IActionResult CreateLogin(UserDto userdto)
         {
             try
             {
-                var create = _userIService.RegisterUser(user);
+                var create = _userIService.RegisterUser(userdto);
                 return Ok(new XBaseResult
                 {
                     data = create,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
-                    totalCount = user.Id,
                     message = "User successfully"
                 });
             }
@@ -52,6 +52,7 @@ namespace XeDapAPI.Controllers
                 });
             }
         }
+
         [HttpPost("Login")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -80,6 +81,34 @@ namespace XeDapAPI.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
+        [HttpPost("CreateAdmin")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateLoginAdmin(UserDto userdto)
+        {
+            try
+            {
+                var create = _userIService.RegisterUserAdmin(userdto);
+                return Ok(new XBaseResult
+                {
+                    data = create,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "User successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+
         [HttpPost("logout")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
