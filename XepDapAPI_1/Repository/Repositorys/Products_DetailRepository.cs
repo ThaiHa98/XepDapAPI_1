@@ -17,10 +17,17 @@ namespace XepDapAPI_1.Repository.Repositorys
 
         public ProductDetailGetInfDto Getproducts_Detail(int productId)
         {
+            var productDetails = _dbContext.Product_Details.FirstOrDefault(p => p.ProductID == productId);
+            if (productDetails == null)
+            {
+                Console.WriteLine("Không tìm thấy dữ liệu trong Product_Details với ProductID: " + productId);
+                return null;
+            }
+
             var result = (from productDetail in _dbContext.Product_Details
                           join brand in _dbContext.Brands on productDetail.BrandId equals brand.Id
                           join product in _dbContext.Products on productDetail.ProductID equals product.Id
-                          where productDetail.ProductID == productId // Sửa điều kiện ở đây
+                          where productDetail.ProductID == productId
                           select new ProductDetailGetInfDto
                           {
                               Id = productDetail.Id,
@@ -33,6 +40,12 @@ namespace XepDapAPI_1.Repository.Repositorys
                               Weight = productDetail.Weight,
                               Other_Details = productDetail.Other_Details
                           }).FirstOrDefault();
+
+            if (result == null)
+            {
+                Console.WriteLine("Không có dữ liệu sau khi join.");
+            }
+
             return result;
         }
     }

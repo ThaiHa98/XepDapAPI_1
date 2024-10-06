@@ -103,38 +103,29 @@ namespace XepDapAPI_1.Service.Services
             {
                 string currentDataFolder = DateTime.Now.ToString("dd-MM-yyyy");
                 var baseFolder = _configuration.GetValue<string>("BaseAddress");
-
-                // Tạo thư mục Product
                 var productFolder = Path.Combine(baseFolder, "Product_Detail");
-
                 if (!Directory.Exists(productFolder))
                 {
                     Directory.CreateDirectory(productFolder);
                 }
-
-                // Tạo thư mục date nằm trong thư mục Product
                 var folderPath = Path.Combine(productFolder, currentDataFolder);
-
                 if (!Directory.Exists(folderPath))
                 {
                     Directory.CreateDirectory(folderPath);
                 }
-
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
                 string filePath = Path.Combine(folderPath, fileName);
-
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await image.CopyToAsync(stream); // Lưu hình ảnh vào file
+                    await image.CopyToAsync(stream);
                 }
-
-                // Trả về tên thư mục và tên ảnh
-                return Path.Combine("Product_Detail", currentDataFolder, fileName);
+                return $"Product_Detail/{currentDataFolder}/{fileName}";
             }
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while saving the image: {ex.Message}");
             }
         }
+
     }
 }

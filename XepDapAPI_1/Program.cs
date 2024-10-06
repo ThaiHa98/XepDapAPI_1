@@ -15,6 +15,7 @@ using XepDapAPI_1.Repository.Repositorys;
 using XepDapAPI_1.Service.Interfaces;
 using XepDapAPI_1.Service.Services;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<MyDB>(options =>
@@ -113,6 +114,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(@"D:\Thai\WebBanXeDap\XepDapAPI_1\Data", "Image")),
+    RequestPath = "" // Bỏ qua đường dẫn để có thể truy cập trực tiếp
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -123,6 +131,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseStaticFiles();
 
 app.UseCors("AllowOrigins");
 
