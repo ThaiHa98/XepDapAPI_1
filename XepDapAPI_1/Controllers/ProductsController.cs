@@ -62,22 +62,21 @@ namespace XepDapAPI_1.Controllers
         }
         [HttpPut("Update")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(200)]
-        public IActionResult UpdateProduct([FromForm]UpdateProductDto updateproductDto, [FromForm] IFormFile image)
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UpdateProduct(int Id, [FromForm] UpdateProductDto updateproductDto)
         {
             try
             {
-                if(updateproductDto == null)
+                if (updateproductDto == null)
                 {
                     return Unauthorized("Invalid slide data");
                 }
-                var delete = _productsService.Update(updateproductDto, image);
+                var delete = await _productsService.Update(Id, updateproductDto);
                 return Ok(new XBaseResult
                 {
                     data = updateproductDto,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
-                    totalCount = updateproductDto.Id,
                     message = "Update Successfully"
                 });
             }
@@ -86,7 +85,7 @@ namespace XepDapAPI_1.Controllers
                 return BadRequest(new XBaseResult
                 {
                     success = false,
-                    httpStatusCode= (int)HttpStatusCode.BadRequest,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
                     message = ex.Message
                 });
             }
@@ -326,10 +325,8 @@ namespace XepDapAPI_1.Controllers
         {
             try
             {
-                // Gọi phương thức lấy sản phẩm dựa trên productName và màu sắc
                 var productDetails = _productsService.GetProductsByNameAndColor(productName, color);
 
-                // Kiểm tra nếu không tìm thấy sản phẩm với màu cụ thể hoặc danh sách sản phẩm rỗng
                 if ((productDetails.ProductDetail == null && productDetails.ProductDetails == null) ||
                     (productDetails.ProductDetails != null && !productDetails.ProductDetails.Any()))
                 {
@@ -340,16 +337,51 @@ namespace XepDapAPI_1.Controllers
                         message = "Không tìm thấy sản phẩm nào với thông tin cung cấp."
                     });
                 }
-
-                // Trả về chi tiết sản phẩm và danh sách màu sắc
                 return Ok(new XBaseResult
                 {
                     data = productDetails,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
-                    totalCount = productDetails.ProductDetails?.Count ?? 1, // Đếm số lượng sản phẩm
+                    totalCount = productDetails.ProductDetails?.Count ?? 1,
                     message = "Danh sách sản phẩm theo yêu cầu."
                 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+        [HttpDelete("Delete/{Id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> DeleteProduct(int Id)
+        {
+            try
+            {
+                var result = await _productsService.DeleteAsync(Id);
+                if (result)
+                {
+                    return Ok(new XBaseResult
+                    {
+                        success = true,
+                        httpStatusCode = (int)HttpStatusCode.OK,
+                        message = "Product deleted successfully"
+                    });
+                }
+                else
+                {
+                    return BadRequest(new XBaseResult
+                    {
+                        success = false,
+                        httpStatusCode = (int)HttpStatusCode.BadRequest,
+                        message = "Product could not be deleted"
+                    });
+                }
             }
             catch (Exception ex)
             {

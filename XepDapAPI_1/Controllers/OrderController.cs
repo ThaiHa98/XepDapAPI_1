@@ -57,5 +57,32 @@ namespace XepDapAPI_1.Controllers
                 });
             }
         }
+        [HttpGet("GetViewPurchasedProducts")]
+        //[Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ViewPurchasedProducts(int Id)
+        {
+            try
+            {
+                var result = _orderService.GetViewPurchasedProducts(Id);
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "GetViewPurchasedProducts Successfully"
+                });
+            }
+            catch (Exception ex) 
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

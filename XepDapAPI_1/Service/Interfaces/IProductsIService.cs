@@ -6,8 +6,8 @@ namespace XepDapAPI_1.Service.Interfaces
     public interface IProductsIService
     {
         Task<Products> Create(ProductDto productsDto);
-        string Update(UpdateProductDto updateProductDto, IFormFile image);
-        bool Delete(int Id);
+        Task<UpdateProductDto> Update(int id,UpdateProductDto updateProductDto);
+        Task<bool> DeleteAsync(int Id);
         List<Object> GetBrandName(string keyword);
         List<Object> GetTypeName(string keyword, int limit = 6);
         List<Object> GetPriceHasDecreased();

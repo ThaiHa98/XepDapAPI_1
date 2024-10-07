@@ -2,6 +2,8 @@
 using Data.Dto;
 using Data.Models;
 using Data.Models.Enum;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using XepDapAPI_1.Repository.Interface;
 using XepDapAPI_1.Service.Interfaces;
 
@@ -70,17 +72,17 @@ namespace XepDapAPI_1.Service.Services
             }
         }
 
-        public bool Delete(int Id)
+        public async Task<bool> DeleteAsync(int Id)
         {
             try
             {
-                var delete = _dbContext.Products.FirstOrDefault(x => x.Id == Id);
+                var delete = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == Id);
                 if (delete == null)
                 {
                     throw new Exception("Id not found");
                 }
                 _dbContext.Products.Remove(delete);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
@@ -220,9 +222,58 @@ namespace XepDapAPI_1.Service.Services
             }
         }
 
-        public string Update(UpdateProductDto updateProductDto, IFormFile image)
+        public async Task<UpdateProductDto> Update(int Id, UpdateProductDto updateProductDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == Id);
+                if (product == null)
+                {
+                    throw new Exception("ProductId not found");
+                }
+
+                if (!string.IsNullOrEmpty(updateProductDto.ProductName) && updateProductDto.ProductName != "null")
+                {
+                    product.ProductName = updateProductDto.ProductName;
+                }
+
+                if (updateProductDto.Price > 0)
+                {
+                    product.Price = updateProductDto.Price;
+                }
+
+                if (updateProductDto.PriceHasDecreased > 0)
+                {
+                    product.PriceHasDecreased = updateProductDto.PriceHasDecreased;
+                }
+
+                if (!string.IsNullOrEmpty(updateProductDto.Description) && updateProductDto.Description != "null")
+                {
+                    product.Description = updateProductDto.Description;
+                }
+
+                if (updateProductDto.Quantity >= 0)
+                {
+                    product.Quantity = updateProductDto.Quantity;
+                }
+
+                if (updateProductDto.Image != null)
+                {
+                    product.Image = await SaveImageAsync(updateProductDto.Image);
+                }
+
+                if (updateProductDto.Create.HasValue)
+                {
+                    product.Create = updateProductDto.Create.Value;
+                }
+                product.Status = updateProductDto.Status;
+                await _dbContext.SaveChangesAsync();
+                return updateProductDto;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while updating the product: {ex.Message}");
+            }
         }
 
         public List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(decimal minPrice, decimal maxPrice, string? brandsName)
