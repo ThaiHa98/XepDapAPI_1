@@ -3,6 +3,7 @@ using Data.Dto;
 using Data.Models;
 using Data.Models.Enum;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Net.Mime;
 using XepDapAPI_1.Repository.Interface;
@@ -95,6 +96,53 @@ namespace XepDapAPI_1.Service.Services
             int randomNumber = random.Next(0, 1000);//Sinh ra số ngẫy nhiên từ 1 đến 9999
             string formattedNumber = randomNumber.ToString("D4");//Định dạng số thành chuỗi với độ dài 4 ký tư
             return "OR-" + formattedNumber;
+        }
+
+        public async Task<List<GetViewPurchasedProducts>> GetViewPurchasedProducts(int userId)
+        {
+            try
+            {
+                var userExists = await _dbContext.Users.AnyAsync(x => x.Id == userId);
+                if (!userExists)
+                {
+                    throw new Exception("UserId not found");
+                }
+
+                var purchasedProducts = await (from o in _dbContext.Orders
+                                               join od in _dbContext.Order_Details
+                                               on o.No_ equals od.OrderID
+                                               join u in _dbContext.Users
+                                               on o.UserID equals u.Id
+                                               where o.UserID == userId
+                                               select new GetViewPurchasedProducts
+                                               {
+                                                   No_ = o.No_,
+                                                   UserName = u.Name,
+                                                   UserID = o.UserID,
+                                                   ShipName = o.ShipName,
+                                                   ShipAddress = o.ShipAddress,
+                                                   ShipEmail = o.ShipEmail,
+                                                   ShipPhone = o.ShipPhone,
+                                                   ProductID = od.ProductID,
+                                                   ProductName = od.ProductName,
+                                                   PriceProduc = od.PriceProduc,
+                                                   Quantity = od.Quantity,
+                                                   TotalPrice = od.TotalPrice,
+                                                   Image = od.Image,
+                                                   CreatedDate = od.CreatedDate
+                                               }).ToListAsync();
+                if (!purchasedProducts.Any())
+                {
+                    throw new Exception("No purchased products found for this user");
+                }
+
+                return purchasedProducts;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
         }
     }
 }

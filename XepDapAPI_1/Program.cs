@@ -14,7 +14,6 @@ using XepDapAPI_1.Repository.Interface;
 using XepDapAPI_1.Repository.Repositorys;
 using XepDapAPI_1.Service.Interfaces;
 using XepDapAPI_1.Service.Services;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,6 +74,15 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddSwaggerGen();
+var issuer = builder.Configuration["Jwt:Issuer"];
+var audience = builder.Configuration["Jwt:Audience"];
+var token256 = builder.Configuration["Jwt:Token256"];
+
+if (string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(audience) || string.IsNullOrWhiteSpace(token256))
+{
+    throw new ArgumentNullException("JWT configuration values cannot be null or empty.");
+}
+
 builder.Services.AddAuthentication(option =>
 {
     option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

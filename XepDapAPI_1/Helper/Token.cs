@@ -23,7 +23,8 @@ namespace XeDapAPI.Helper
             List<Claim> claims = new List<Claim> {
                 //new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim("Name", user.Name.ToString()),
-                new Claim("Id", user.Id.ToString())
+                new Claim("Id", user.Id.ToString()),
+                new Claim("Roles", user.roles.ToString())
 
         };
 

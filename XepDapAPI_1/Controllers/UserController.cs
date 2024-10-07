@@ -151,5 +151,59 @@ namespace XeDapAPI.Controllers
                 return BadRequest($"An error occurred: {ex.Message}");
             }
         }
+
+        [HttpGet("GetViewUser")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetUser(int userId)
+        {
+            try
+            {
+                var result = await _userIService.GetUser(userId);
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "User successfully retrieved"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
+        [HttpPut("UpdateViewUser")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UpdateViewUser(int userId, [FromBody] UpdateGetViewUser updateGetViewUserDto)
+        {
+            try
+            {
+                var result = await _userIService.UpdateViewUser(userId, updateGetViewUserDto);
+
+                return Ok(new XBaseResult
+                {
+                    data = result,
+                    success = true,
+                    httpStatusCode = (int)HttpStatusCode.OK,
+                    message = "User updated successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new XBaseResult
+                {
+                    success = false,
+                    httpStatusCode = (int)HttpStatusCode.BadRequest,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

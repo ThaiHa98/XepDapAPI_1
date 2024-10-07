@@ -54,25 +54,32 @@ namespace XepDapAPI_1.Controllers
         [HttpPut("Update")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult UpdateProduct_Details([FromBody]UpdateProduct_DetailsDto updateproduct_DetailDto)
+        public async Task<IActionResult> UpdateProduct_Details(int Id, [FromForm] UpdateProduct_DetailsDto updateproduct_DetailDto)
         {
             try
             {
-                if(updateproduct_DetailDto == null)
+                if (updateproduct_DetailDto == null)
                 {
-                    return BadRequest("Invalid slide data");
+                    return BadRequest(new XBaseResult
+                    {
+                        success = false,
+                        httpStatusCode = (int)HttpStatusCode.BadRequest,
+                        message = "Invalid slide data"
+                    });
                 }
-                var update = _product_DetailIService.Update(updateproduct_DetailDto);
+
+                // Gọi phương thức Update và chờ kết quả
+                var update = await _product_DetailIService.Update(Id, updateproduct_DetailDto);
+
                 return Ok(new XBaseResult
                 {
                     data = update,
                     success = true,
                     httpStatusCode = (int)HttpStatusCode.OK,
-                    totalCount = update.Count(),
                     message = "Update Successfully"
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new XBaseResult
                 {
@@ -82,6 +89,7 @@ namespace XepDapAPI_1.Controllers
                 });
             }
         }
+
         [HttpDelete("Delete")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
