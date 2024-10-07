@@ -355,5 +355,72 @@ namespace XepDapAPI_1.Service.Services
 
             return result;
         }
+
+        public async Task<List<GetViewProductType>> GetProductType(string productType)
+        {
+            try
+            {
+                var type = await _dbContext.Types.FirstOrDefaultAsync(x => x.ProductType == productType);
+                if(type == null)
+                {
+                    throw new Exception("TypeName not found");
+                }
+                var typeProduct = await (from t in _dbContext.Types
+                                         join p in _dbContext.Products
+                                         on t.Id equals p.TypeId
+                                         where t.ProductType == productType
+                                         select new GetViewProductType
+                                         {
+                                             Id = p.Id,
+                                             ProductName = p.ProductName,
+                                             Price = p.Price,
+                                             PriceHasDecreased = p.PriceHasDecreased,
+                                             Description = p.Description,
+                                             Image = p.Image,
+                                             BrandId = p.BrandId,
+                                             brandName = p.brandName,
+                                             TypeId = p.TypeId,
+                                             TypeName = p.TypeName,
+                                             Colors = p.Colors,
+                                             ProductType_ProductType = t.ProductType
+                                         }).ToListAsync();
+                return typeProduct;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching the product type", ex);
+            }
+        }
+
+        public async Task<List<ProductTypeInfDto>> GetProductName(string productName)
+        {
+            try
+            {
+                var products = await _dbContext.Products
+                    .Where(x => x.ProductName.ToLower().Contains(productName.ToLower()))
+                    .Select(product => new ProductTypeInfDto
+                    {
+                        Id = product.Id,
+                        ProductName = product.ProductName,
+                        Price = product.Price,
+                        PriceHasDecreased = product.PriceHasDecreased,
+                        Description = product.Description,
+                        Image = product.Image,
+                        TypeName = product.TypeName,
+                        Colors = product.Colors,
+                    }).ToListAsync();
+
+                if (products.Count == 0)
+                {
+                    return new List<ProductTypeInfDto>();
+                }
+
+                return products;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching the products with name '{productName}'", ex);
+            }
+        }
     }
 }

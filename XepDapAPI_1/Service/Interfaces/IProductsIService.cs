@@ -14,5 +14,7 @@ namespace XepDapAPI_1.Service.Interfaces
         byte[] GetProductImageBytes(string imagePath);
         List<ProductGetAllInfPriceDto> GetProductsWithinPriceRangeAndBrand(decimal minPrice, decimal maxPrice, string brandsName);
         ProductDetailWithColors GetProductsByNameAndColor(string productName, string? color);
+        Task<List<GetViewProductType>> GetProductType(string ProductType);
+        Task<List<ProductTypeInfDto>> GetProductName(string productName);
     }
 }
